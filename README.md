@@ -9,18 +9,18 @@
 
 ˚ ༘ ⋆｡˚  ( ˶ˆ ᗜ ˆ˵ )  ⋆｡˚ ༘ ˚
 
-<!-- Portrait stacked above the typing line; the blank line between the two imgs
-    makes them separate paragraphs so each one centres on its own row. -->
-<img src="assets/portrait.gif" width="24%" alt="" />
-
-<img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" />
+<!-- Portrait stacked above the typing line. Raw img tags are inline and end up
+     side by side even across blank lines, so each one needs its own block-level
+     p wrapper to sit on its own centred row. -->
+<p align="center"><img src="assets/portrait.gif" width="24%" alt="" /></p>
+<p align="center"><img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" /></p>
 
 <!-- The about-me lines live in a centred pre so they get the rounded box
      treatment; align="center" centres the text inside the full-width box. -->
 <pre align="center">
 💼  BSC @ CUHK MATH • Dev • Data Engineer
 🤖  Agentic Workflow • AI Native Application • RAG
-🎮  Dating Reality Show • Anime • Eat Good West
+🎮  Dating Reality Show • Anime • My Little Airport
 🐾  Cat Lover
 </pre>
 
