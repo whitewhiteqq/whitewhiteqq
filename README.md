@@ -83,16 +83,16 @@
 <pre>
   ── also ────────────────────────────────────────────────────────────────────────────────
 
-  <a href="demo-hkdse.html">hkdse-math-toolbox</a>                                           TypeScript · Python · React
+  <a href="https://whitewhiteqq.github.io/whitewhiteqq/demo-hkdse.html">hkdse-math-toolbox</a>                                           TypeScript · Python · React
       an AI-powered toolbox for my friend who teaches math in HK — it generates
       exam papers, solutions and marking schemes.
       a standalone containerised CP-SAT solver handles school timetable scheduling.
 
-  <a href="demo-substrate.html">substrate</a>                                                                       Markdown
+  <a href="https://whitewhiteqq.github.io/whitewhiteqq/demo-substrate.html">substrate</a>                                                                       Markdown
       a sci-fi universe framework for my AI writing agent. I am writing my first
       sci-fi on it.
 
-  <a href="demo-basket.html">florist-basket</a>                                                        TypeScript · React
+  <a href="https://whitewhiteqq.github.io/whitewhiteqq/demo-basket.html">florist-basket</a>                                                        TypeScript · React
       my florist sister runs a flower shop in Taiwan — this AI-enabled order
       book is how she manages her orders.
 
