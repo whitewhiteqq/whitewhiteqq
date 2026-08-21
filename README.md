@@ -9,13 +9,14 @@
 
 ˚ ༘ ⋆｡˚  ( ˶ˆ ᗜ ˆ˵ )  ⋆｡˚ ༘ ˚
 
-<!-- Greeting first, tagline under it, portrait last. Raw img tags are inline
-     and end up side by side even across blank lines, so each one needs its own
-     block-level p wrapper to sit on its own centred row. Both typing SVGs share
-     the internal width of 1000, so the same 62% keeps them on one pixel scale
-     and the size params (40 vs 22) set the hierarchy. -->
-<p align="center"><img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" /></p>
-<p align="center"><img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=22&duration=5000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=70&lines=I%27m+Whitewhite%2C+an+Artful+Intellectual+wannabe" width="62%" alt="I'm Whitewhite, an Artful Intellectual wannabe" /></p>
+<!-- Greeting first, tagline under it, portrait last. Raw img tags are inline,
+     so the stack needs block-level p wrappers; the two typing SVGs share one p
+     split by a br so no paragraph margin opens between them. The typing service
+     has no start-delay param, so the tagline SVG types a blank space as its
+     first line for one 4000ms duration cycle — it starts typing for real right
+     as Hello Hello finishes. Same internal width of 1000 at 62% keeps both on
+     one pixel scale; size 40 vs 22 sets the hierarchy. -->
+<p align="center"><img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&vCenter=true&repeat=false&random=false&width=1000&height=70&lines=Hello+Hello" width="62%" alt="Hello Hello" /><br /><img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=22&duration=4000&pause=300&color=7150CC&center=true&vCenter=true&repeat=false&random=false&width=1000&height=50&lines=%20;I%27m+Whitewhite%2C+an+Artful+Intellectual+wannabe%E2%98%86" width="62%" alt="I'm Whitewhite, an Artful Intellectual wannabe☆" /></p>
 <p align="center"><img src="assets/portrait.gif" width="24%" alt="" /></p>
 
 <!-- The about-me lines live in a centred pre so they get the rounded box
