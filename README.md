@@ -15,10 +15,14 @@
 
 <img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" />
 
-💼 &nbsp; BSC @ CUHK MATH • Dev • Data Engineer <br />
-🤖 &nbsp; Agentic Workflow • AI Native Application • RAG <br />
-🎮 &nbsp; Dating Reality Show • Anime • Eat Good West <br />
-🐾 &nbsp; Cat Lover <br />
+<!-- The about-me lines live in a centred pre so they get the rounded box
+     treatment; align="center" centres the text inside the full-width box. -->
+<pre align="center">
+💼  BSC @ CUHK MATH • Dev • Data Engineer
+🤖  Agentic Workflow • AI Native Application • RAG
+🎮  Dating Reality Show • Anime • Eat Good West
+🐾  Cat Lover
+</pre>
 
 </div>
 
@@ -65,6 +69,13 @@
 
 <div align="center">
 
+[![](https://img.shields.io/badge/zero--trust--relay-7150CC?style=flat)](https://github.com/whitewhiteqq/zero-trust-relay)
+[![](https://img.shields.io/badge/aws--test--plugin-C2477F?style=flat)](https://github.com/whitewhiteqq/aws-test-plugin)
+
+</div>
+
+<div align="center">
+
 ⚡  ૮ ˶ᵔ ᵕ ᵔ˶ ა  **also on the shelf — some of my private projects**  ૮ ˶ᵔ ᵕ ᵔ˶ ა  ⚡
 
 </div>
@@ -73,19 +84,20 @@
   ── also ────────────────────────────────────────────────────────────────────────────────
 
   <a href="demo-hkdse.html">hkdse-math-toolbox</a>                                           TypeScript · Python · React
-      a toolbox for my frd works as a math teacher in HK: generating exam papers,
-      solutions and marking schemes.
-      a standalone container CP-SAT solver for school timetable scheduling.
+      an AI-powered toolbox for my friend who teaches math in HK — it generates
+      exam papers, solutions and marking schemes.
+      a standalone containerised CP-SAT solver handles school timetable scheduling.
 
   <a href="demo-substrate.html">substrate</a>                                                                       Markdown
       a sci-fi universe framework for my AI writing agent. I am writing my first
       sci-fi on it.
 
   <a href="demo-basket.html">florist-basket</a>                                                        TypeScript · React
-      the order book my florist sister runs her shop from.
+      my florist sister runs a flower shop in Taiwan — this AI-enabled order
+      book is how she manages her orders.
 
   plb-algo-trader                                                                   Python
-      a framework supports backtesting by batch, portfolio evaluation, and live trading.
+      a framework for batch backtesting, portfolio evaluation, and live trading.
 </pre>
 
 <div align="center">
@@ -105,9 +117,6 @@
 </pre>
 
 <div align="center">
-
-[![](https://img.shields.io/badge/zero--trust--relay-7150CC?style=flat)](https://github.com/whitewhiteqq/zero-trust-relay)
-[![](https://img.shields.io/badge/aws--test--plugin-C2477F?style=flat)](https://github.com/whitewhiteqq/aws-test-plugin)
 
 ૮꒰ ˶ • ༝ • ˶꒱ა  ♡  *built for people around me*
 
