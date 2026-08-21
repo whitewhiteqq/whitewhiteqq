@@ -93,8 +93,8 @@
       sci-fi on it.
 
   <a href="https://whitewhiteqq.github.io/whitewhiteqq/demo-basket.html">florist-basket</a>                                                        TypeScript · React
-      my florist sister runs a flower shop in Taiwan — this AI-enabled order
-      book is how she manages her orders.
+      my florist sister runs a flower shop in Taiwan — an AI-powered app that
+      lightens her daily order work.
 
   plb-algo-trader                                                                   Python
       a framework for batch backtesting, portfolio optimization, and live trading.
