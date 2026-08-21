@@ -9,9 +9,11 @@
 
 ˚ ༘ ⋆｡˚  ( ˶ˆ ᗜ ˆ˵ )  ⋆｡˚ ༘ ˚
 
-<!-- Keep the portrait and typing line in one centred row so their visual centres
-    align while the row still wraps cleanly on narrow screens. -->
-<img src="assets/portrait.gif" width="24%" alt="" /> <img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" />
+<!-- Portrait stacked above the typing line; the blank line between the two imgs
+    makes them separate paragraphs so each one centres on its own row. -->
+<img src="assets/portrait.gif" width="24%" alt="" />
+
+<img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" />
 
 💼 &nbsp; BSC @ CUHK MATH • Dev • Data Engineer <br />
 🤖 &nbsp; Agentic Workflow • AI Native Application • RAG <br />
@@ -53,10 +55,10 @@
 <pre>
   ── public ──────────────────────────────────────────────────────────────────────────────
 
-  zero-trust-relay                                                             Shell
+  zero-trust-relay                                                                   Shell
       run an AI coding CLI against your own VPS — mTLS, zero open inbound ports
 
-  aws-test-plugin                                                      Python
+  aws-test-plugin                                                                   Python
       agent skills that read your OpenAPI spec and the handler code, then write
       the pytest suite — API Gateway, Lambda, Step Functions, Batch
 </pre>
@@ -70,19 +72,19 @@
 <pre>
   ── also ────────────────────────────────────────────────────────────────────────────────
 
-  hkdse-math-toolbox                                           TypeScript · Python · React
+  <a href="demo-hkdse.html">hkdse-math-toolbox</a>                                           TypeScript · Python · React
       a toolbox for my frd works as a math teacher in HK: generating exam papers,
       solutions and marking schemes.
       a standalone container CP-SAT solver for school timetable scheduling.
 
-  substrate                                                                       Markdown
+  <a href="demo-substrate.html">substrate</a>                                                                       Markdown
       a sci-fi universe framework for my AI writing agent. I am writing my first
       sci-fi on it.
 
-  florist-basket                                                        TypeScript · React
+  <a href="demo-basket.html">florist-basket</a>                                                        TypeScript · React
       the order book my florist sister runs her shop from.
 
-  plb-algo-trader                                                        Python
+  plb-algo-trader                                                                   Python
       a framework supports backtesting by batch, portfolio evaluation, and live trading.
 </pre>
 
@@ -106,8 +108,6 @@
 
 [![](https://img.shields.io/badge/zero--trust--relay-7150CC?style=flat)](https://github.com/whitewhiteqq/zero-trust-relay)
 [![](https://img.shields.io/badge/aws--test--plugin-C2477F?style=flat)](https://github.com/whitewhiteqq/aws-test-plugin)
-
-[hkdse math toolbox](demo-hkdse.html) · [substrate](demo-substrate.html) · [florist basket](demo-basket.html)
 
 ૮꒰ ˶ • ༝ • ˶꒱ა  ♡  *built for people around me*
 
