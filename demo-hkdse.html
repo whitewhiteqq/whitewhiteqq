@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>hkdse-math-toolbox — interactive demo</title>
+<meta name="description" content="A clickable demo of the paper generator and the school timetabler." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet" />
+
+
+<style>
+:root{
+  --page:#f8f4ff; --card:#ffffff; --card2:#f2ecfe; --line:#e4dbf7;
+  --fg:#2f2552; --dim:#5e5384; --faint:#736792; --lilac:#7150cc; --glow:#b83f7d;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
+
+  /* the app's own light theme */
+  --primary:#2563eb; --primary-d:#1d4ed8; --secondary:#059669; --amber:#d97706;
+  --sky:#0284c7; --paper:#ffffff; --bg:#f8fafc; --gray:#e5e7eb; --slate:#64748b;
+  --ink:#111827; --red:#dc2626;
+}
+*{box-sizing:border-box}
+/* 夢核: three pastel light pools over the near-white base. background-attachment:fixed
+   holds them still while the page scrolls, so the page reads as one lit room. */
+body{margin:0;color:var(--fg);background-color:var(--page);
+     background-image:
+       radial-gradient(920px 560px at 10% -12%,rgba(183,157,255,.34),transparent 64%),
+       radial-gradient(800px 480px at 90% 0%,rgba(255,184,232,.34),transparent 62%),
+       radial-gradient(780px 720px at 50% 112%,rgba(160,225,255,.30),transparent 68%);
+     background-repeat:no-repeat;background-attachment:fixed;
+     font:15px/1.7 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:var(--lilac);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+nav{position:sticky;top:0;z-index:40;background:rgba(248,244,255,.86);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:12px;align-items:center;height:48px;font-size:12.5px}
+nav .back{color:var(--dim)} nav .back:hover{color:var(--fg)}
+nav .nm{color:var(--lilac);font-weight:600}
+nav .tagline{color:var(--faint);margin-left:auto;font-size:11.5px}
+nav .tagline a{color:var(--dim)} nav .tagline a:hover{color:var(--fg)}
+@media(max-width:760px){nav .tagline{display:none}}
+
+header.intro{padding:38px 0 24px}
+header.intro h1{font:600 24px/1.3 "Noto Serif TC",Georgia,serif;margin:0}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.pill{font-size:11.5px;color:var(--dim);border:1px solid var(--line);
+      background:var(--card);border-radius:999px;padding:4px 11px}
+.pill b{color:var(--fg);font-weight:500}
+
+/* ── browser frame around the light app ──────────────────────────────── */
+.browser{border:1px solid var(--line);border-radius:11px;overflow:hidden;
+         box-shadow:0 22px 60px rgba(75,45,140,.13);margin-bottom:58px}
+.chrome{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#f0e9fc;
+        border-bottom:1px solid var(--line)}
+.chrome i{width:10px;height:10px;border-radius:50%;background:#d9cdf2;display:block}
+.chrome .url{flex:1;background:#f1ebfd;border:1px solid var(--line);border-radius:6px;
+             padding:4px 11px;font-size:11.5px;color:var(--faint);margin-left:6px}
+.chrome .fake{font-size:10.5px;color:var(--faint);border:1px solid var(--line);
+              border-radius:999px;padding:3px 9px;letter-spacing:.4px}
+
+/* ══════════════════ everything below is the app's own light UI ═════════ */
+.app{background:var(--bg);color:var(--ink);font:14.5px/1.6 var(--sans);min-height:620px}
+.app .hd{background:var(--paper);border-bottom:1px solid var(--gray);
+         padding:11px 20px;display:flex;align-items:center;gap:12px}
+.app .hd .logo{font-weight:700;font-size:15px;color:var(--ink);cursor:pointer}
+.app .hd .logo span{color:var(--primary)}
+.app .hd .key{margin-left:auto;font-size:11.5px;color:var(--slate);border:1px solid var(--gray);
+              border-radius:999px;padding:4px 11px;cursor:pointer;background:var(--paper)}
+.app .hd .key b{color:var(--secondary)}
+.app .inner{max-width:1000px;margin:0 auto;padding:22px 20px 34px}
+
+/* toolbox home */
+.hero-t{text-align:center;padding:34px 20px 30px;
+        background:linear-gradient(180deg,#eff6ff,var(--bg));border-bottom:1px solid var(--gray)}
+.hero-t .kicker{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:1.2px;
+   text-transform:uppercase;color:var(--primary);background:#dbeafe;border-radius:999px;
+   padding:4px 11px;margin-bottom:12px}
+.hero-t h2{font:700 27px/1.25 var(--sans);margin:0 0 9px;color:var(--ink)}
+.hero-t p{color:var(--slate);max-width:56ch;margin:0 auto 14px;font-size:14.5px}
+.hero-t .byok{font-size:11.5px;color:#94a3b8;margin:16px auto 0;max-width:44ch}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.tools{grid-template-columns:1fr}}
+.tool{background:var(--paper);border:1px solid var(--gray);border-radius:11px;padding:18px 19px;
+      transition:.14s;display:flex;flex-direction:column}
+/* Two of the four tools open in this demo and two do not. Only the two that do
+   get a pointer and a hover lift, so the card answers "can I click this?"
+   before the reader clicks it. */
+.tool.live{cursor:pointer}
+.tool.live:hover{border-color:#93c5fd;box-shadow:0 6px 18px rgba(37,99,235,.09)}
+.tool .row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px}
+.tool .tile{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;
+            color:#fff;font-size:20px}
+.tool .bdgs{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.tool .bdg{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+/* `st` is the product's own status. `try` and `off` are this page talking about
+   itself. They are different claims, so they never share a colour. */
+.tool .bdg.st{color:#047857;background:#d1fae5}
+.tool.beta .bdg.st{color:#0369a1;background:#e0f2fe}
+.tool .bdg.try{color:#1d4ed8;background:#dbeafe}
+.tool .bdg.off{color:#64748b;background:#e2e8f0}
+.tool h3{margin:0 0 6px;font-size:16.5px;font-weight:700}
+.tool p{margin:0;color:var(--slate);font-size:13px;flex:1}
+.tool .go{margin-top:12px;font-size:12.5px;font-weight:600;color:var(--primary)}
+.tool.soon{border-style:dashed;background:#f1f5f9;opacity:.75}
+.tool.soon .go{color:var(--slate);font-weight:500}
+
+/* stepper */
+.stepper{display:flex;align-items:flex-start;padding:18px 0 22px;gap:0}
+.stepper .st{flex:1;display:flex;align-items:center}
+.stepper button{background:none;border:0;cursor:pointer;display:flex;flex-direction:column;
+                align-items:center;gap:6px;font:inherit;padding:0}
+.stepper .bub{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+              font-weight:700;font-size:13.5px;background:var(--gray);color:#94a3b8;
+              transition:.16s}
+.stepper .on .bub{background:var(--primary);color:#fff;
+                  box-shadow:0 0 0 5px rgba(37,99,235,.16)}
+.stepper .done .bub{background:var(--secondary);color:#fff}
+.stepper .lb{font-size:11.5px;font-weight:600;color:#94a3b8;white-space:nowrap}
+.stepper .on .lb{color:var(--primary)} .stepper .done .lb{color:var(--secondary)}
+.stepper .line{flex:1;height:2px;background:var(--gray);margin:-19px 6px 0}
+.stepper .line.f{background:var(--secondary)}
+
+.panel{background:var(--paper);border:1px solid var(--gray);border-radius:11px;
+       padding:20px 22px;margin-bottom:14px}
+.panel h4{margin:0 0 4px;font-size:16px;font-weight:700}
+.panel .sub{color:var(--slate);font-size:13px;margin:0 0 16px}
+.foot{display:flex;gap:9px;align-items:center;margin-top:18px}
+.foot .sp{margin-left:auto;font-size:12px;color:#94a3b8}
+.b{border:0;border-radius:8px;padding:9px 17px;font:600 13px/1 var(--sans);cursor:pointer}
+.b.p{background:var(--primary);color:#fff} .b.p:hover{background:var(--primary-d)}
+.b.o{background:var(--paper);border:1px solid var(--gray);color:#374151}
+.b.g{background:var(--secondary);color:#fff}
+.b[disabled]{opacity:.45;cursor:not-allowed}
+
+.drop{border:2px dashed #cbd5e1;border-radius:11px;padding:30px 20px;text-align:center;
+      color:var(--slate);background:#f8fafc}
+.drop b{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.files{display:grid;gap:7px;margin-top:14px}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--gray);border-radius:9px;
+      padding:9px 12px;background:var(--paper);font-size:13px}
+.file .ok{color:var(--secondary);font-weight:700} .file .er{color:var(--red);font-weight:700}
+.file .sz{margin-left:auto;color:#94a3b8;font-size:11.5px;font-family:var(--mono)}
+
+.q{border:1px solid var(--gray);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+   background:var(--paper)}
+.q .qh{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.q .no{font:700 11px/1 var(--mono);background:#eff6ff;color:var(--primary);
+       border-radius:5px;padding:5px 8px}
+.q .mk{margin-left:auto;font-size:11.5px;color:#94a3b8;font-family:var(--mono)}
+.q .stem{font-size:14.5px;margin:0 0 6px}
+.q .topic{font-size:11.5px;color:var(--slate)}
+.math{font-family:"Fraunces",Georgia,serif;font-size:15.5px;font-style:italic}
+.tag{display:inline-flex;align-items:center;gap:4px;font:600 10.5px/1 var(--mono);
+     border-radius:5px;padding:5px 8px;letter-spacing:.3px}
+.t-ok{background:#d1fae5;color:#047857} .t-warn{background:#fef3c7;color:#b45309}
+.t-bad{background:#fee2e2;color:#b91c1c} .t-run{background:#e0e7ff;color:#4338ca}
+.t-idle{background:#f1f5f9;color:#94a3b8}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.chip{border:1px solid var(--gray);background:var(--paper);border-radius:999px;
+      padding:6px 13px;font-size:12.5px;cursor:pointer;color:#475569}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.rowf{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:6px}
+.rowf label{font-size:12px;color:var(--slate);display:block;margin-bottom:5px;font-weight:600}
+.rowf select,.rowf input{border:1px solid var(--gray);border-radius:8px;padding:7px 10px;
+                         font:inherit;font-size:13px;background:var(--paper);color:var(--ink)}
+
+.log{border:1px solid var(--gray);border-radius:10px;overflow:hidden;background:var(--paper)}
+.log .li{display:flex;align-items:center;gap:11px;padding:11px 14px;
+         border-bottom:1px solid #f1f5f9;font-size:13px}
+.log .li:last-child{border-bottom:0}
+.log .li .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log .li.re{background:#fffbeb}
+.bar{height:6px;background:var(--gray);border-radius:4px;overflow:hidden;margin:14px 0 6px}
+.bar i{display:block;height:100%;background:var(--primary);transition:width .35s ease}
+
+/* paper preview */
+.paper{background:#fff;border:1px solid var(--gray);border-radius:6px;padding:30px 34px;
+       box-shadow:0 3px 14px rgba(0,0,0,.06);font-family:"Noto Serif TC",Georgia,serif;
+       max-width:620px;margin:0 auto}
+.paper .ph{text-align:center;border-bottom:2px solid var(--ink);padding-bottom:11px;
+           margin-bottom:18px}
+.paper .ph b{display:block;font-size:16px;letter-spacing:1px}
+.paper .ph span{font-size:11.5px;color:var(--slate);font-family:var(--mono)}
+.paper ol{padding-left:22px;margin:0} .paper li{margin-bottom:15px;font-size:13.5px}
+.paper li .m{float:right;color:var(--slate);font-size:11.5px;font-family:var(--mono)}
+
+/* ── timetable ────────────────────────────────────────────────────────── */
+.chat{border:1px solid var(--gray);border-radius:10px;background:var(--paper);
+      padding:14px 15px;margin-bottom:14px}
+.msg{margin-bottom:10px;font-size:13.5px;max-width:86%}
+.msg.u{margin-left:auto;background:#eff6ff;border:1px solid #bfdbfe;border-radius:11px 11px 3px 11px;
+       padding:9px 13px}
+.msg.a{background:#f8fafc;border:1px solid var(--gray);border-radius:11px 11px 11px 3px;
+       padding:9px 13px}
+/* the constraint JSON: a dark code inset inside the app's own light UI. Its
+   colours are literal on purpose, so a page-shell palette swap cannot reach
+   into the product and leave pale text on a pale ground. */
+.msg pre{margin:8px 0 0;background:#1c1533;color:#c9c0e8;border-radius:7px;padding:10px 12px;
+         font-size:11.5px;line-height:1.55;overflow-x:auto;font-family:var(--mono)}
+.msg pre b{color:#f0a6d8;font-weight:600} .msg pre i{color:#8b80b0;font-style:normal}
+.ask{display:flex;gap:8px;margin-top:12px}
+.ask input{flex:1;border:1px solid var(--gray);border-radius:9px;padding:10px 12px;
+           font:inherit;font-size:13.5px;background:var(--paper);color:var(--ink)}
+.ask input:focus{outline:2px solid #93c5fd;outline-offset:-1px}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.sugg button{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:999px;padding:5px 11px;
+             font:inherit;font-size:11.5px;color:var(--slate);cursor:pointer}
+.sugg button:hover{border-color:var(--primary);color:var(--primary)}
+
+.rules{display:grid;gap:6px;margin-bottom:14px}
+.rule{display:flex;align-items:center;gap:10px;border:1px solid var(--gray);border-radius:9px;
+      padding:9px 12px;background:var(--paper);font-size:13px}
+.rule .ty{font:600 10.5px/1 var(--mono);color:var(--slate);background:#f1f5f9;
+          border-radius:5px;padding:5px 7px}
+.rule .tx{flex:1}
+.rule .mo{border:1px solid var(--gray);border-radius:999px;padding:4px 10px;
+          font:600 10.5px/1 var(--mono);cursor:pointer;background:var(--paper)}
+.rule .mo.hard{background:#fee2e2;color:#b91c1c;border-color:#fecaca}
+.rule .mo.soft{background:#e0f2fe;color:#0369a1;border-color:#bae6fd}
+.rule .rm{border:0;background:none;color:#cbd5e1;font-size:17px;cursor:pointer;line-height:1}
+.rule .rm:hover{color:var(--red)}
+
+.grid-wrap{overflow-x:auto;border:1px solid var(--gray);border-radius:10px;background:var(--paper)}
+table.tt{border-collapse:collapse;width:100%;font-size:11px;font-family:var(--mono)}
+table.tt th,table.tt td{border:1px solid #eef2f7;padding:0;text-align:center}
+table.tt th{background:#f8fafc;color:var(--slate);font-weight:600;font-size:10.5px;
+            padding:7px 4px;position:sticky;top:0}
+table.tt td.p{background:#f8fafc;color:var(--slate);font-weight:600;width:34px}
+table.tt .cell{padding:5px 3px;min-width:62px;line-height:1.32}
+table.tt .cell b{display:block;font-size:11px;font-weight:700}
+table.tt .cell span{display:block;font-size:9px;opacity:.72}
+table.tt tr.brk td{background:#f1f5f9;color:#94a3b8;font-size:9.5px;padding:3px;
+                   letter-spacing:1.4px}
+.diag{border-left:3px solid var(--amber);background:#fffbeb;border-radius:0 8px 8px 0;
+      padding:11px 14px;margin-bottom:9px;font-size:12.5px;color:#78350f}
+.diag.err{border-left-color:var(--red);background:#fef2f2;color:#7f1d1d}
+.diag.ok{border-left-color:var(--secondary);background:#ecfdf5;color:#065f46}
+.diag code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.06);
+           border-radius:4px;padding:1px 5px}
+.legend2{display:flex;flex-wrap:wrap;gap:11px;margin-top:11px;font-size:11px;color:var(--slate)}
+.legend2 span{display:flex;align-items:center;gap:5px}
+.legend2 i{width:11px;height:11px;border-radius:3px;display:block}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px}
+@media(max-width:760px){.kpis{grid-template-columns:1fr 1fr}}
+.kpis div{border:1px solid var(--gray);border-radius:10px;padding:12px 13px;background:var(--paper)}
+.kpis b{display:block;font:600 20px/1.2 "Fraunces",Georgia,serif;color:var(--ink)}
+.kpis span{font-size:10.5px;color:#94a3b8;font-family:var(--mono);letter-spacing:.5px}
+
+/* ── commentary ───────────────────────────────────────────────────────── */
+/* demo-only notice — the same block sits on all three pages */
+.notice{display:flex;gap:13px;align-items:flex-start;margin:18px 0 0;
+  border:1px solid rgba(113,80,204,.28);border-left:3px solid var(--lilac);
+  border-radius:9px;background:rgba(113,80,204,.06);padding:12px 15px}
+.notice .tag{flex:none;padding-top:2px;color:var(--lilac);
+  font:600 10px/1.6 var(--mono);letter-spacing:2px;text-transform:uppercase}
+.notice p{margin:0;max-width:78ch;color:var(--dim);font-size:13.5px;line-height:1.65}
+.notice b{color:var(--fg);font-weight:600}
+.notice a{color:var(--lilac);text-decoration:none;
+  border-bottom:1px solid rgba(113,80,204,.42)}
+.notice a:hover{color:var(--glow);border-bottom-color:var(--glow)}
+
+footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--faint);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="back" href="https://github.com/whitewhiteqq">&larr; profile</a>
+  <span class="nm">hkdse-math-toolbox</span>
+  <span class="tagline">also &middot; <a href="demo-substrate.html">substrate</a>
+    &middot; <a href="demo-basket.html">florist-basket</a></span>
+</div></nav>
+
+<div class="wrap">
+<header class="intro">
+  <h1>A toolbox for HK maths teachers</h1>
+  <div class="pills">
+    <span class="pill"><b>Next.js</b> + React</span>
+    <span class="pill"><b>OR-Tools CP-SAT</b> in its own container</span>
+  </div>
+  <div class="notice">
+    <span class="tag">demo</span>
+    <p><b>This page is a demo, not the app.</b> The real app is private, and there is no
+      public sign-up. Do you want access, or a GA release?
+      <a href="https://github.com/whitewhiteqq">Ask me on GitHub</a>.</p>
+  </div>
+</header>
+
+<div class="browser">
+  <div class="chrome"><i></i><i></i><i></i>
+    <span class="url">https://&hellip;.a.run.app<span id="crumb"></span></span>
+    <span class="fake">demo &middot; nothing is sent</span></div>
+  <div class="app">
+    <div class="hd">
+      <span class="logo" data-go="home">HKDSE <span>Math Toolbox</span></span>
+      <button class="key" id="keybtn">API key: <b>in memory</b> &middot; never stored</button>
+    </div>
+    <div id="app"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer><div class="wrap">
+  A demo of a private project. No analytics, no real school data. The page sends
+  nothing anywhere; the only request it makes is for two Google fonts.
+  For access or a GA release, ask on
+  <a href="https://github.com/whitewhiteqq">my GitHub profile</a>.
+</div></footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   Everything below is invented data in the real shapes.
+   ═══════════════════════════════════════════════════════════════════ */
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let view = "home";     // home | paper | tt
+let pStep = 1, tStep = 1;
+
+/* ── paper generator data ─────────────────────────────────────────────── */
+const TOPICS = ["Quadratic Equations","Functions & Graphs","Exponential & Log",
+  "More about Polynomials","Inequalities","Sequences","Trigonometry",
+  "Coordinate Geometry","Circle Properties","Permutation & Combination",
+  "Probability","Measures of Dispersion","Equations of Circles","Locus"];
+let picked = new Set(["Quadratic Equations","Sequences","Circle Properties","Probability"]);
+let cfg = { count:6, level:"Core (Paper 1)", diff:"Mixed" };
+
+const SEED_Q = [
+  { stem:'Solve  2x² − 7x + 3 = 0.', topic:"Quadratic Equations", marks:3 },
+  { stem:'The 4th term of an A.S. is 11 and the 9th term is 31. Find the 20th term.',
+    topic:"Sequences", marks:5 },
+  { stem:'In the figure, AB is a diameter and ∠ACD = 34°. Find ∠BAD.',
+    topic:"Circle Properties", marks:4 },
+  { stem:'A bag holds 4 red and 6 blue balls. Two are drawn without replacement. Find P(same colour).',
+    topic:"Probability", marks:5 },
+  { stem:'Let f(x) = log₃(x + 1) − 2. Find the x-intercept of y = f(x).',
+    topic:"Exponential & Log", marks:4 },
+  { stem:'The circle C: x² + y² − 6x + 4y − 12 = 0. Find the centre and the radius.',
+    topic:"Equations of Circles", marks:4 },
+];
+/* the generation log; index 3 is the one that fails and is redone */
+let gen = { running:false, done:0, rows:[] };
+
+/* ── timetable data ───────────────────────────────────────────────────── */
+const SUBJ = [
+  {c:"MATH", en:"Mathematics",        zh:"數學",           per:8, room:"", t:"Ms Wong"},
+  {c:"ENG",  en:"English Language",   zh:"英國語文",       per:8, room:"", t:"Mr Sze"},
+  {c:"CHI",  en:"Chinese Language",   zh:"中國語文",       per:8, room:"", t:"Ms Lau"},
+  {c:"CSD",  en:"Citizenship & Social Dev.", zh:"公民與社會發展", per:4, room:"", t:"Mr Ho"},
+  {c:"PHY",  en:"Physics",            zh:"物理",           per:6, room:"LAB1", t:"Dr Tsang"},
+  {c:"CHEM", en:"Chemistry",          zh:"化學",           per:6, room:"LAB2", t:"Ms Yip"},
+  {c:"BIO",  en:"Biology",            zh:"生物",           per:6, room:"LAB3", t:"Mr Kwok"},
+  {c:"ECON", en:"Economics",          zh:"經濟",           per:5, room:"", t:"Ms Chow"},
+  {c:"ICT",  en:"Info. & Comm. Tech.",zh:"資訊及通訊科技", per:5, room:"COMP", t:"Mr Fung"},
+  {c:"M2",   en:"Extended Module 2",  zh:"延伸單元二",     per:5, room:"", t:"Ms Wong"},
+  {c:"PE",   en:"Physical Education", zh:"體育",           per:4, room:"GYM",  t:"Mr Ng"},
+  {c:"VA",   en:"Visual Arts",        zh:"視覺藝術",       per:2, room:"ART",  t:"Ms Tam"},
+  {c:"MUS",  en:"Music",              zh:"音樂",           per:2, room:"MUS",  t:"Mr Lam"},
+  {c:"FORM", en:"Form Period",        zh:"班主任課",       per:1, room:"", t:"Ms Wong"},
+];
+const CLR = {MATH:"#dbeafe",ENG:"#fee2e2",CHI:"#fef3c7",CSD:"#e9d5ff",PHY:"#d1fae5",
+  CHEM:"#ccfbf1",BIO:"#dcfce7",ECON:"#ffe4e6",ICT:"#e0e7ff",M2:"#cffafe",
+  PE:"#fed7aa",VA:"#fae8ff",MUS:"#f5d0fe",FORM:"#f1f5f9"};
+
+let rules = [
+  { id:1, type:"lesson_block",   mode:"hard", text:"Physics runs as one double each cycle",
+    p:{subject:"PHY", size:2} },
+  { id:2, type:"even_spread",    mode:"soft", text:"Spread Mathematics across the cycle",
+    p:{subject:"MATH"} },
+];
+let ruleSeq = 3;
+let solved = null, solving = false, stale = false;
+let ttLang = "en", ttClass = "4B";
+
+/* deterministic PRNG so the same rule set always gives the same timetable */
+function rng(seed){ let a = seed >>> 0;
+  return () => { a += 0x6D2B79F5; let t = a;
+    t = Math.imul(t ^ t>>>15, t|1); t ^= t + Math.imul(t ^ t>>>7, t|61);
+    return ((t ^ t>>>14) >>> 0) / 4294967296; }; }
+const hash = s => { let h=2166136261; for(const ch of s){ h^=ch.charCodeAt(0);
+  h=Math.imul(h,16777619);} return h>>>0; };
+
+/* a tiny greedy placer that honours the rule types it can honour cheaply */
+function solve(){
+  const seed = hash(JSON.stringify(rules));
+  const rnd  = rng(seed);
+  const DAYS = 10, PER = 8;
+  const grid = Array.from({length:DAYS},()=>Array(PER).fill(null));
+  const diags = [];
+
+  const banDay  = {};   // subject -> Set(day)
+  const window  = {};   // subject -> [lo,hi]
+  const maxDay  = {};   // subject -> n
+  const blocks  = {};   // subject -> size
+  const teacherOff = {};// teacher -> Set(day)
+
+  for(const r of rules){
+    if(r.type==="subject_avoid_day"){ (banDay[r.p.subject] ||= new Set()).add(r.p.day); }
+    if(r.type==="subject_time_window"){ window[r.p.subject]=[r.p.from,r.p.to]; }
+    if(r.type==="subject_max_per_day"){ maxDay[r.p.subject]=r.p.max; }
+    if(r.type==="lesson_block"){ blocks[r.p.subject]=r.p.size; }
+    if(r.type==="teacher_day_off"){ (teacherOff[r.p.teacher] ||= new Set()).add(r.p.day); }
+    if(r.type==="even_spread"){ maxDay[r.p.subject] = Math.min(maxDay[r.p.subject] ?? 9, 1); }
+  }
+
+  /* build the demand list, doubles first so they get the room to land */
+  const demand = [];
+  for(const s of SUBJ){
+    let left = s.per;
+    const bs = blocks[s.c] || 1;
+    if(bs > 1 && left >= bs){ demand.push({s, size:bs}); left -= bs; }
+    while(left-- > 0) demand.push({s, size:1});
+  }
+  demand.sort((a,b)=> b.size - a.size || rnd() - .5);
+
+  const perDay = {};   // "SUBJ:day" -> count
+  const busy   = {};   // "teacher:day:period" -> true
+
+  for(const d of demand){
+    const s = d.s;
+    let placed = false;
+    const order = [];
+    for(let day=0; day<DAYS; day++) for(let p=0; p<PER; p++) order.push([day,p]);
+    order.sort(()=> rnd() - .5);
+
+    for(const [day,p] of order){
+      if(p + d.size > PER) continue;
+      let free = true;
+      for(let k=0;k<d.size;k++) if(grid[day][p+k]) free = false;
+      if(!free) continue;
+      if(banDay[s.c] && banDay[s.c].has(day+1)) continue;
+      if(teacherOff[s.t] && teacherOff[s.t].has(day+1)) continue;
+      if(window[s.c]){ const [lo,hi]=window[s.c];
+        if(p+1 < lo || p+d.size > hi) continue; }
+      const key = s.c+":"+day;
+      if(maxDay[s.c] !== undefined && (perDay[key]||0) + d.size > maxDay[s.c]) continue;
+      let clash = false;
+      for(let k=0;k<d.size;k++) if(busy[s.t+":"+day+":"+(p+k)]) clash = true;
+      if(clash) continue;
+
+      for(let k=0;k<d.size;k++){ grid[day][p+k] = s; busy[s.t+":"+day+":"+(p+k)] = true; }
+      perDay[key] = (perDay[key]||0) + d.size;
+      placed = true; break;
+    }
+    if(!placed) diags.push({lvl:"warn", code:"RELAXED_SOFT",
+      msg:`Could not place one period of <code>${s.c}</code> under every rule. `
+        + `The soft rules on it were relaxed for this slot.`});
+  }
+
+  /* fill anything left with an ECA period rather than a hole */
+  let holes = 0;
+  for(let day=0; day<DAYS; day++) for(let p=0; p<PER; p++)
+    if(!grid[day][p]){ grid[day][p] = {c:"ECA", en:"Club / ECA", zh:"學會", room:"", t:"—"}; holes++; }
+
+  const hard = rules.filter(r=>r.mode==="hard").length;
+  diags.unshift({lvl:"ok", code:"FEASIBLE",
+    msg:`Solved in <code>2.4 s</code> — Stage A placed the elective columns, `
+      + `Stage B filled ${DAYS*PER - holes} teaching periods. `
+      + (hard===0 ? `No hard rules to satisfy.`
+         : hard===1 ? `The 1 hard rule is satisfied.`
+         : `All ${hard} hard rules are satisfied.`)});
+  return {grid, diags, holes};
+}
+
+/* ── plain English → one catalogue row ────────────────────────────────── */
+const PATTERNS = [
+  { re:/(no|not|avoid|never).*(p\.?e\.?|physical)/i,
+    make:()=>({type:"subject_avoid_day", mode:"hard", text:"PE avoids Day 1",
+               p:{subject:"PE", day:1}}) },
+  { re:/(wong|teacher).*(day\s*(\d)).*(off|free)|(off|free).*(day\s*(\d))/i,
+    make:m=>({type:"teacher_day_off", mode:"hard",
+              text:"Ms Wong is free all of Day "+(m[3]||m[7]||4),
+              p:{teacher:"Ms Wong", day:+(m[3]||m[7]||4)}}) },
+  { re:/(math|maths|mathematics).*(morning|early|before lunch)/i,
+    make:()=>({type:"subject_time_window", mode:"hard",
+               text:"Mathematics only in periods 1–4",
+               p:{subject:"MATH", from:1, to:4}}) },
+  { re:/(no more than|at most|max).*(one|1|two|2).*(day)/i,
+    make:m=>({type:"subject_max_per_day", mode:"hard",
+              text:"At most "+(/two|2/i.test(m[2])?2:1)+" period(s) of Chinese a day",
+              p:{subject:"CHI", max:/two|2/i.test(m[2])?2:1}}) },
+  { re:/(double|block|consecutive).*(chem|chemistry)/i,
+    make:()=>({type:"lesson_block", mode:"hard", text:"Chemistry runs as one double",
+               p:{subject:"CHEM", size:2}}) },
+  { re:/(gap|compact|window)/i,
+    make:()=>({type:"teacher_gap_minimise", mode:"soft",
+               text:"Prefer compact days for Ms Wong", p:{teacher:"Ms Wong"}}) },
+];
+const SUGG = [
+  "Ms Wong should be free all of Day 4",
+  "Keep maths in the morning",
+  "No PE on Day 1",
+  "Chemistry should be a double",
+  "At most one Chinese period a day",
+];
+let chat = [
+  { who:"a", text:"Tell me a rule the way you would tell a colleague. I will turn it "
+      + "into one row of the constraint catalogue — I do not solve anything myself." },
+];
+
+/* ═══════════════════════ views ═══════════════════════════════════════ */
+
+function stepper(steps, cur, key){
+  return `<div class="stepper">${steps.map((lb,i)=>{
+    const n = i+1, cls = cur===n ? "on" : cur>n ? "done" : "";
+    return `<div class="st"><button class="${cls}" data-step="${key}:${n}">
+      <span class="bub">${cur>n?"✓":n}</span><span class="lb">${lb}</span></button>
+      ${i<steps.length-1?`<span class="line ${cur>n?"f":""}"></span>`:""}</div>`;
+  }).join("")}</div>`;
+}
+
+/* ── toolbox home ─────────────────────────────────────────────────────── */
+function vHome(){
+  const T = [
+    ["Solution Generator","#2563eb","∑","Ready", "Upload past-paper questions and get step-by-step solutions, marking schemes and tutorial notes — checked and export-ready.","soln"],
+    ["Paper Generator","#059669","▤","Ready","Build a full exam from a topic-tagged bank — fresh variants, then a clean print-ready layout.","paper"],
+    ["Marking Assistant","#d97706","✓","Ready","Batch-grade a class against a marking scheme, with overrides, per-student reports and item analysis.","mark"],
+    ["Timetabler","#0284c7","▦","Beta","Build a whole-school 10-day-cycle timetable — elective columns, hard and soft rules, then per-class and per-teacher grids.","tt"],
+  ];
+  return `
+  <div class="hero-t">
+    <span class="kicker">For HK secondary-school maths teachers</span>
+    <h2>The HKDSE Mathematics Toolbox</h2>
+    <p>A growing set of tools that take the busywork out of preparing solutions, papers
+      and teaching materials — so you can spend your time teaching.</p>
+    <p class="byok">Bring your own API key. Keys stay in your browser — never stored on
+      our servers.</p>
+  </div>
+  <div class="inner">
+    <div class="tools">${T.map(([n,c,g,b,d,go])=>{
+      /* the one place the demo decides what a reader can open */
+      const live = go==="paper" || go==="tt";
+      return `
+      <div class="tool ${live?"live":"soon"} ${b==="Beta"?"beta":""}" ${live?`data-go="${go}"`:""}>
+        <div class="row"><div class="tile" style="background:${c}">${g}</div>
+          <span class="bdgs"><span class="bdg st">${b}</span>
+            <span class="bdg ${live?"try":"off"}">${live?"Try it here":"Not in this demo"}</span>
+          </span></div>
+        <h3>${n}</h3><p>${d}</p>
+        <span class="go">${live?"Open tool →":"Private app only"}</span>
+      </div>`;}).join("")}</div>
+  </div>`;
+}
+
+/* ── paper generator ──────────────────────────────────────────────────── */
+const P_STEPS = ["Upload","Review","Configure","Generate","Refine","Export"];
+
+function vPaper(){
+  let body = "";
+  if(pStep===1) body = `
+    <div class="panel"><h4>Upload past-paper questions</h4>
+      <p class="sub">PDF or photo. Text is pulled out in the browser; only the extracted
+        question text is sent on.</p>
+      <div class="drop"><b>Drop a PDF or an image here</b>
+        or press the button below to load the sample set</div>
+      <div class="files">
+        <div class="file"><span class="ok">✓</span> 2024-DSE-MATH-CP-1.pdf
+          <span class="sz">18 questions · 1.2 MB</span></div>
+        <div class="file"><span class="ok">✓</span> school-mock-2025-p1.pdf
+          <span class="sz">14 questions · 0.9 MB</span></div>
+        <div class="file"><span class="ok">✓</span> IMG_2211.HEIC
+          <span class="sz">1 question · 2.4 MB</span></div>
+      </div>
+      <div class="foot"><button class="b p" data-step="p:2">Continue</button>
+        <button class="b o" data-step="p:2">Load sample instead</button>
+        <span class="sp">33 questions found</span></div></div>`;
+
+  if(pStep===2) body = `
+    <div class="panel"><h4>Check what was read</h4>
+      <p class="sub">Every stem is editable before it is used. Maths is compiled to
+        LaTeX, so a mis-read exponent is visible here rather than in the printed paper.</p>
+      ${SEED_Q.slice(0,4).map((q,i)=>`
+        <div class="q"><div class="qh"><span class="no">Q${i+1}</span>
+          <span class="tag ${i===2?"t-warn":"t-ok"}">${i===2?"check the figure":"read cleanly"}</span>
+          <span class="mk">${q.marks} marks</span></div>
+          <p class="stem"><span class="math">${esc(q.stem)}</span></p>
+          <div class="topic">${q.topic}</div></div>`).join("")}
+      <div class="foot"><button class="b o" data-step="p:1">Back</button>
+        <button class="b p" data-step="p:3">Looks right</button>
+        <span class="sp">1 question flagged — a figure could not be cropped</span></div></div>`;
+
+  if(pStep===3) body = `
+    <div class="panel"><h4>Configure the paper</h4>
+      <p class="sub">Topics come from the HKDSE curriculum map in the repo, not from
+        free text, so a topic tag always matches the question bank.</p>
+      <div class="chips">${TOPICS.map(t=>
+        `<button class="chip ${picked.has(t)?"on":""}" data-topic="${esc(t)}">${t}</button>`).join("")}</div>
+      <div class="rowf">
+        <div><label>Questions</label>
+          <select id="cnt">${[4,6,8,10].map(n=>
+            `<option ${cfg.count===n?"selected":""}>${n}</option>`).join("")}</select></div>
+        <div><label>Level</label>
+          <select><option>Core (Paper 1)</option><option>Core (Paper 2)</option>
+            <option>Extended Module 1</option><option>Extended Module 2</option></select></div>
+        <div><label>Difficulty</label>
+          <select><option>Mixed</option><option>Foundation</option><option>Stretch</option></select></div>
+        <div><label>Also produce</label>
+          <select><option>Solutions + marking scheme</option><option>Solutions only</option>
+            <option>Paper only</option></select></div>
+      </div>
+      <div class="foot"><button class="b o" data-step="p:2">Back</button>
+        <button class="b p" data-step="p:4">Generate ${cfg.count} questions</button>
+        <span class="sp">${picked.size} topics selected</span></div></div>`;
+
+  if(pStep===4){
+    const pct = Math.round(gen.done / (cfg.count+1) * 100);
+    body = `
+    <div class="panel"><h4>Generating &amp; checking</h4>
+      <p class="sub">Each question is written once, then re-worked from scratch by the
+        strongest model the provider offers. If the two answers disagree, the question
+        is thrown away and written again.</p>
+      <div class="bar"><i style="width:${gen.running||gen.done?pct:0}%"></i></div>
+      <div class="log">${
+        (gen.rows.length?gen.rows:SEED_Q.slice(0,cfg.count).map((q,i)=>
+          ({n:i+1, stem:q.stem, state:"idle"}))).map(r=>`
+        <div class="li ${r.state==="redo"?"re":""}">
+          <span class="no" style="font:700 11px/1 var(--mono);background:#eff6ff;color:#2563eb;border-radius:5px;padding:5px 8px">Q${r.n}</span>
+          <span class="nm">${esc(r.stem)}</span>
+          <span class="tag ${
+            r.state==="ok"?"t-ok":r.state==="run"?"t-run":
+            r.state==="redo"?"t-bad":r.state==="fixed"?"t-warn":"t-idle"}">${
+            r.state==="ok"?"checked ✓":r.state==="run"?"checking…":
+            r.state==="redo"?"disagreed ✗":r.state==="fixed"?"regenerated ✓":"queued"}</span>
+        </div>`).join("")}</div>
+      ${gen.done>=cfg.count+1?`
+        <div class="diag ok" style="margin-top:13px"><b>${cfg.count} of ${cfg.count} agreed.</b>
+          Question 4 was rejected on the first pass — the checker got
+          <code>17/45</code> where the writer got <code>2/9</code> — and was rewritten
+          before you saw it.</div>`:""}
+      <div class="foot">
+        <button class="b o" data-step="p:3">Back</button>
+        ${gen.running?`<button class="b p" disabled>Working…</button>`
+          :gen.done? `<button class="b p" data-step="p:5">Continue</button>`
+          :`<button class="b p" data-act="run">Start</button>`}
+        <span class="sp">${gen.done?`${gen.done} of ${cfg.count+1} passes done`
+          :"nothing has been sent yet — this is a demo"}</span></div></div>`;
+  }
+
+  if(pStep===5) body = `
+    <div class="panel"><h4>Refine anything you do not like</h4>
+      <p class="sub">Regenerate one question without touching the other five. The
+        others keep their checked status.</p>
+      ${SEED_Q.slice(0,cfg.count).map((q,i)=>`
+        <div class="q"><div class="qh"><span class="no">Q${i+1}</span>
+          <span class="tag ${i===3?"t-warn":"t-ok"}">${i===3?"regenerated ✓":"checked ✓"}</span>
+          <span class="mk">${q.marks} marks</span>
+          <button class="b o" style="padding:5px 11px;font-size:11.5px;margin-left:8px"
+            data-act="noop">Regenerate</button></div>
+          <p class="stem"><span class="math">${esc(q.stem)}</span></p>
+          <div class="topic">${q.topic} · solution and marking scheme attached</div></div>`).join("")}
+      <div class="foot"><button class="b o" data-step="p:4">Back</button>
+        <button class="b g" data-step="p:6">Build the paper</button></div></div>`;
+
+  if(pStep===6) body = `
+    <div class="panel"><h4>Export</h4>
+      <p class="sub">Print-ready HTML, laid out by the paper layout module — not a
+        screenshot of the screen.</p>
+      <div class="paper">
+        <div class="ph"><b>F.5 Mathematics — Mock Paper 1</b>
+          <span>Time allowed: 45 minutes &nbsp;·&nbsp; Total: ${
+            SEED_Q.slice(0,cfg.count).reduce((s,q)=>s+q.marks,0)} marks</span></div>
+        <ol>${SEED_Q.slice(0,cfg.count).map(q=>
+          `<li><span class="m">(${q.marks} marks)</span>${esc(q.stem)}</li>`).join("")}</ol>
+      </div>
+      <div class="foot"><button class="b o" data-step="p:5">Back</button>
+        <button class="b p" data-act="noop">Print paper</button>
+        <button class="b o" data-act="noop">Print marking scheme</button>
+        <button class="b o" data-act="noop">Download .docx</button></div></div>`;
+
+  return `<div class="inner">${stepper(P_STEPS,pStep,"p")}${body}</div>`;
+}
+
+/* the step-4 animation: one question fails, then is regenerated */
+function runGen(){
+  gen = { running:true, done:0, rows:SEED_Q.slice(0,cfg.count).map((q,i)=>
+    ({n:i+1, stem:q.stem, state:"idle"})) };
+  render();
+  let i = 0;
+  const tick = () => {
+    if(i > 0) gen.rows[i-1].state = (i-1===3) ? "redo" : "ok";
+    if(i-1===3){                       /* the rejected one comes back */
+      setTimeout(()=>{ gen.rows[3].state = "fixed"; render(); }, 620);
+    }
+    if(i < cfg.count){ gen.rows[i].state = "run"; i++; gen.done++; render();
+      setTimeout(tick, 620); }
+    else { gen.done = cfg.count+1; gen.running = false; render(); }
+  };
+  tick();
+}
+
+/* ── timetabler ───────────────────────────────────────────────────────── */
+const T_STEPS = ["Upload","Check Data","Columns","Solve","Review","Export"];
+const TABLES = ["school_settings","rooms","classes","subjects","teachers",
+  "subject_allocation","teaching_assignments","student_elective_choices","fixed_slots"];
+
+function vTT(){
+  let body = "";
+
+  if(tStep===1) body = `
+    <div class="panel"><h4>Upload the nine tables</h4>
+      <p class="sub">Nine CSVs, or one .xlsx with nine sheets. Templates download from
+        the same page, so nobody has to guess a column name.</p>
+      <div class="files">${TABLES.map((t,i)=>`
+        <div class="file"><span class="${i===8?"er":"ok"}">${i===8?"—":"✓"}</span>
+          ${t}.csv <span class="sz">${i===8?"not provided (optional)":
+            [1,64,26,31,58,84,142,626][i]+" rows"}</span></div>`).join("")}</div>
+      <div class="foot"><button class="b p" data-step="t:2">Check the data</button>
+        <button class="b o" data-act="noop">Download templates</button>
+        <span class="sp">sample workbook loaded — an invented school</span></div></div>`;
+
+  if(tStep===2) body = `
+    <div class="panel"><h4>What the data says</h4>
+      <p class="sub">Every diagnostic is a code plus IDs. The English below is rendered
+        here in the browser — the codes are what cross the wire.</p>
+      <div class="kpis">
+        <div><b>26</b><span>CLASSES</span></div>
+        <div><b>58</b><span>TEACHERS</span></div>
+        <div><b>626</b><span>ELECTIVE CHOICES</span></div>
+        <div><b>10 × 8</b><span>CYCLE × PERIODS</span></div>
+      </div>
+      <div class="diag ok"><code>DATA_OK</code> — all nine tables parse, and every
+        foreign key resolves.</div>
+      <div class="diag"><code>ALLOC_ROUNDED</code> — F.4 <code>ECON</code> asks for
+        4.5 periods per cycle. Rounded to 5; that is 19 extra lessons a year.</div>
+      <div class="diag"><code>ROOM_TIGHT</code> — 3 classes need
+        <code>science_lab</code> at once, and there are 3 labs. Feasible, with no slack.</div>
+      <div class="diag err"><code>NO_HOME_ROOM</code> — class <code>5D</code> has no
+        <code>homeRoom</code>. Fix this before solving.</div>
+      <div class="foot"><button class="b o" data-step="t:1">Back</button>
+        <button class="b p" data-step="t:3">Fix and continue</button>
+        <span class="sp">1 error · 2 warnings</span></div></div>`;
+
+  if(tStep===3) body = `
+    <div class="panel"><h4>Elective columns</h4>
+      <p class="sub">Built from 626 student choices. A student row carries an opaque
+        token, never a name or a student number — the map back stays in this browser.</p>
+      <div class="grid-wrap"><table class="tt">
+        <tr><th>Column</th><th>Subjects offered together</th><th>Groups</th><th>Clashes</th></tr>
+        ${[["X1","PHY · ECON · VA","3","0"],["X2","CHEM · ICT · MUS","3","0"],
+           ["X3","BIO · M2 · ECON","3","2"],["X4","ICT · VA · PE(elective)","3","0"]].map(r=>
+          `<tr>${r.map((c,i)=>`<td class="cell" style="text-align:${i?"left":"center"};padding:8px 10px">${c}</td>`).join("")}</tr>`).join("")}
+      </table></div>
+      <div class="diag" style="margin-top:12px"><code>COLUMN_CLASH</code> — 2 students
+        chose both <code>BIO</code> and <code>M2</code>, which column X3 puts at the
+        same time. Move one, or accept that those two take the other option.</div>
+      <div class="foot"><button class="b o" data-step="t:2">Back</button>
+        <button class="b p" data-step="t:4">Approve this plan</button>
+        <span class="sp">approving a new plan discards the last solve</span></div></div>`;
+
+  if(tStep===4) body = `
+    <div class="panel"><h4>Say the rules out loud</h4>
+      <p class="sub">Type a rule the way you would say it. The model's only job is to
+        pick one of 16 catalogue types and fill its typed parameters.</p>
+      <div class="chat" id="chat">
+        ${chat.map(m=>`<div class="msg ${m.who}">${m.text}${
+          m.json?`<pre>${m.json}</pre>`:""}</div>`).join("")}
+        <div class="ask"><input id="ruleIn" placeholder="e.g. Ms Wong should be free all of Day 4" />
+          <button class="b p" data-act="addrule">Add rule</button></div>
+        <div class="sugg">${SUGG.map(s=>
+          `<button data-say="${esc(s)}">${s}</button>`).join("")}</div>
+      </div>
+      <div class="rules">${rules.map(r=>`
+        <div class="rule"><span class="ty">${r.type}</span>
+          <span class="tx">${esc(r.text)}</span>
+          <button class="mo ${r.mode}" data-mode="${r.id}">${r.mode}</button>
+          <button class="rm" data-rm="${r.id}">×</button></div>`).join("")
+        || `<div class="diag ok" style="margin:0">No rules yet — the solve will still
+             run, it will just be less opinionated.</div>`}</div>
+      ${stale?`<div class="diag"><code>STALE</code> — the rules changed since the last
+        solve. The timetable below is the old one until you solve again.</div>`:""}
+      <div class="foot"><button class="b o" data-step="t:3">Back</button>
+        <button class="b g" data-act="solve" ${solving?"disabled":""}>${
+          solving?"Solving…":"Solve"}</button>
+        ${solved?`<button class="b p" data-step="t:5">Review the result</button>`:""}
+        <span class="sp">${rules.filter(r=>r.mode==="hard").length} hard ·
+          ${rules.filter(r=>r.mode==="soft").length} soft</span></div></div>`;
+
+  if(tStep===5){
+    if(!solved) return `<div class="inner">${stepper(T_STEPS,tStep,"t")}
+      <div class="panel"><h4>Nothing solved yet</h4>
+        <p class="sub">Go back to step 4 and press Solve.</p>
+        <div class="foot"><button class="b p" data-step="t:4">Back to Solve</button></div>
+      </div></div>`;
+    body = `
+    <div class="panel"><h4>Class ${ttClass} — 10-day cycle</h4>
+      <p class="sub">The same result also renders per teacher and per room. Names show
+        in ${ttLang==="en"?"English":"中文"}.</p>
+      <div class="foot" style="margin:0 0 14px">
+        <button class="b ${ttLang==="en"?"p":"o"}" data-lang="en">EN</button>
+        <button class="b ${ttLang==="zh"?"p":"o"}" data-lang="zh">中</button>
+        <span class="sp">${solved.holes} free periods filled with ECA</span></div>
+      ${solved.diags.map(d=>`<div class="diag ${d.lvl==="ok"?"ok":d.lvl==="err"?"err":""}">
+        <code>${d.code}</code> — ${d.msg}</div>`).join("")}
+      <div class="grid-wrap"><table class="tt">
+        <tr><th></th>${Array.from({length:10},(_,d)=>`<th>Day ${d+1}</th>`).join("")}</tr>
+        ${Array.from({length:8},(_,p)=>{
+          const brk = p===2 ? `<tr class="brk"><td colspan="11">R E C E S S</td></tr>`
+                    : p===5 ? `<tr class="brk"><td colspan="11">L U N C H</td></tr>` : "";
+          return brk + `<tr><td class="p">${p+1}</td>${
+            Array.from({length:10},(_,d)=>{
+              const s = solved.grid[d][p];
+              const bg = CLR[s.c] || "#f8fafc";
+              return `<td class="cell" style="background:${bg}">
+                <b>${ttLang==="en"?s.c:(s.zh||s.c)}</b>
+                <span>${s.room||s.t}</span></td>`;
+            }).join("")}</tr>`;
+        }).join("")}
+      </table></div>
+      <div class="legend2">${SUBJ.slice(0,10).map(s=>
+        `<span><i style="background:${CLR[s.c]}"></i>${ttLang==="en"?s.en:s.zh}</span>`).join("")}</div>
+      <div class="foot"><button class="b o" data-step="t:4">Change a rule</button>
+        <button class="b p" data-step="t:6">Export</button></div></div>`;
+  }
+
+  if(tStep===6) body = `
+    <div class="panel"><h4>Export</h4>
+      <p class="sub">One artefact per audience. The booklet prints what you just read,
+        in the language you were reading it in.</p>
+      <div class="files">
+        <div class="file"><span class="ok">▤</span> Per-class grids (26 pages)
+          <span class="sz">PDF · print</span></div>
+        <div class="file"><span class="ok">▤</span> Per-teacher grids (58 pages)
+          <span class="sz">PDF · print</span></div>
+        <div class="file"><span class="ok">▤</span> Allocation letters
+          <span class="sz">one per teacher</span></div>
+        <div class="file"><span class="ok">▤</span> master_timetable.csv
+          <span class="sz">CSV · BOM</span></div>
+        <div class="file"><span class="ok">▤</span> project.json
+          <span class="sz">reopen this exact session</span></div>
+      </div>
+      <div class="foot"><button class="b o" data-step="t:5">Back</button>
+        <button class="b p" data-act="noop">Download all</button>
+        <span class="sp">the API key is not in project.json — by construction</span></div></div>`;
+
+  return `<div class="inner">${stepper(T_STEPS,tStep,"t")}${body}</div>`;
+}
+
+/* ═══ render + events ═════════════════════════════════════════════════ */
+function render(){
+  document.getElementById("app").innerHTML =
+    view==="home" ? vHome() : view==="paper" ? vPaper() : vTT();
+  document.getElementById("crumb").textContent =
+    view==="home" ? "/" : view==="paper" ? "/paper-generator" : "/timetable";
+}
+
+function addRule(text){
+  const t = text.trim(); if(!t) return;
+  chat.push({who:"u", text:esc(t)});
+  const hit = PATTERNS.find(p=>p.re.test(t));
+  const made = hit ? hit.make(t.match(hit.re)) : {
+    type:"subject_avoid_slot", mode:"hard",
+    text:"Read as: keep "+(/[A-Z]{2,4}/.exec(t)||["MATH"])[0]+" out of Day 1 Period 1",
+    p:{subject:(/[A-Z]{2,4}/.exec(t)||["MATH"])[0], day:1, period:1} };
+  const r = {...made, id:ruleSeq++};
+  rules.push(r);
+  chat.push({ who:"a",
+    text: hit ? "That is a <b>"+r.type+"</b>. Added as a <b>"+r.mode+"</b> rule."
+              : "I could not match that to a catalogue type, so I picked the closest "
+                + "one and said so. Edit or delete it below — I do not guess quietly.",
+    json: JSON.stringify({type:r.type, mode:r.mode, params:r.p}, null, 2)
+            .replace(/"(type|mode)": "([^"]+)"/g,'"$1": <b>"$2"</b>') });
+  stale = !!solved;
+  render();
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-go],[data-step],[data-act],[data-topic],[data-mode],[data-rm],[data-say],[data-lang]");
+  if(!t) return;
+
+  if(t.dataset.go){
+    view = t.dataset.go;
+    if(view==="paper") pStep = 1;
+    if(view==="tt") tStep = 1;
+    return render();
+  }
+  if(t.dataset.step){
+    const [k,n] = t.dataset.step.split(":");
+    if(k==="p"){ pStep = +n; if(+n===4 && !gen.done && !gen.running) { render(); return; } }
+    else tStep = +n;
+    return render();
+  }
+  if(t.dataset.topic){
+    picked.has(t.dataset.topic) ? picked.delete(t.dataset.topic)
+                                : picked.add(t.dataset.topic);
+    return render();
+  }
+  if(t.dataset.mode){
+    const r = rules.find(x=>x.id===+t.dataset.mode);
+    if(r) r.mode = r.mode==="hard" ? "soft" : "hard";
+    stale = !!solved; return render();
+  }
+  if(t.dataset.rm){ rules = rules.filter(x=>x.id!==+t.dataset.rm);
+    stale = !!solved; return render(); }
+  if(t.dataset.say){ return addRule(t.dataset.say); }
+  if(t.dataset.lang){ ttLang = t.dataset.lang; return render(); }
+
+  switch(t.dataset.act){
+    case "run": return runGen();
+    case "addrule": {
+      const el = document.getElementById("ruleIn");
+      const v = el ? el.value : ""; if(el) el.value = "";
+      return addRule(v);
+    }
+    case "solve":
+      solving = true; render();
+      setTimeout(()=>{ solved = solve(); solving = false; stale = false;
+        tStep = 5; render(); }, 900);
+      return;
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if(e.key==="Enter" && e.target.id==="ruleIn"){
+    const v = e.target.value; e.target.value = ""; addRule(v);
+    const el = document.getElementById("ruleIn"); if(el) el.focus();
+  }
+});
+document.addEventListener("change", e => {
+  if(e.target.id==="cnt"){ cfg.count = +e.target.value; gen = {running:false,done:0,rows:[]};
+    render(); }
+});
+document.getElementById("keybtn").onclick = () =>
+  alert("In the real app this opens the key modal.\n\n"
+      + "The key is held in React state for the session only:\n"
+      + "  · not in localStorage\n  · not in a cookie\n  · not in the autosave shape\n"
+      + "  · gone after 60 min idle, or 8 hours total\n\n"
+      + "This demo sends nothing anywhere. It has no key and no back end.");
+
+render();
+</script>
+</body>
+</html>

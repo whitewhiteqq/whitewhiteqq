@@ -1,0 +1,126 @@
+<div align="center">
+
+<!-- ────────────────────────────── banner ──────────────────────────────
+     #102, the T-pose. The whole clip, 42 frames, 4200 ms — nothing is
+     trimmed. 640x320, stretched to 862x431 by width="100%". The page
+     closes on banner-end.gif, same size.
+     Rebuild any asset with:  python _scratch/build_assets.py            -->
+<img src="assets/banner.gif" width="100%" alt="" />
+
+˚ ༘ ⋆｡˚  ( ˶ˆ ᗜ ˆ˵ )  ⋆｡˚ ༘ ˚
+
+<!-- Keep the portrait and typing line in one centred row so their visual centres
+    align while the row still wraps cleanly on narrow screens. -->
+<img src="assets/portrait.gif" width="24%" alt="" /> <img src="https://readme-typing-svg.demolab.com?font=Inconsolata&weight=500&size=40&duration=4000&pause=300&color=7150CC&center=true&repeat=false&random=false&width=1000&height=120&lines=Hello+Hello" width="62%" alt="Hello Hello" />
+
+💼 &nbsp; BSC @ CUHK MATH • Dev • Data Engineer <br />
+🤖 &nbsp; Agentic Workflow • AI Native Application • RAG <br />
+🎮 &nbsp; Dating Reality Show • Anime • Eat Good West <br />
+🐾 &nbsp; Cat Lover <br />
+
+</div>
+
+<div align="center">
+
+🌇  ✧ ･ ﾟ  **now — the one I am actually working on**  ･ ﾟ ✧  🌇
+
+</div>
+
+<pre>
+  ── now ─────────────────────────────────────────────────────────────────────────────────
+
+  hkma-regchange                                                                    Python
+      HK regulatory change intelligence. It watches HKMA and SFC, red-lines
+      what changed at section level, and routes that change to the named owner
+      of the duty it hits — as a cited draft.
+
+      4,973 obligations parsed from 61 documents and 2,740 sections into 28 dbt models
+      50-question eval set behind a CI gate: 38 factual, 6 multi-doc, 6 traps
+      3 RAG modes — vanilla, graph and agentic — all cite-or-decline
+      PII redaction before the model
+</pre>
+
+<!-- Divider: #25, under the bridge. It held the top banner slot two picks ago.
+     Delete this whole div to run the two banners and the portrait only, then
+     delete the divider block in build_assets.py.                          -->
+<div align="center">
+<img src="assets/divider.gif" height="220" alt="" />
+
+⋆ ˚｡⋆୨ ( ๑˃ ᴗ ˂ )و ୧⋆ ˚｡⋆  **open, so you can click and check**
+
+</div>
+
+<pre>
+  ── public ──────────────────────────────────────────────────────────────────────────────
+
+  zero-trust-relay                                                             Shell
+      run an AI coding CLI against your own VPS — mTLS, zero open inbound ports
+
+  aws-test-plugin                                                      Python
+      agent skills that read your OpenAPI spec and the handler code, then write
+      the pytest suite — API Gateway, Lambda, Step Functions, Batch
+</pre>
+
+<div align="center">
+
+⚡  ૮ ˶ᵔ ᵕ ᵔ˶ ა  **also on the shelf — some of my private projects**  ૮ ˶ᵔ ᵕ ᵔ˶ ა  ⚡
+
+</div>
+
+<pre>
+  ── also ────────────────────────────────────────────────────────────────────────────────
+
+  hkdse-math-toolbox                                           TypeScript · Python · React
+      a toolbox for my frd works as a math teacher in HK: generating exam papers,
+      solutions and marking schemes.
+      a standalone container CP-SAT solver for school timetable scheduling.
+
+  substrate                                                                       Markdown
+      a sci-fi universe framework for my AI writing agent. I am writing my first
+      sci-fi on it.
+
+  florist-basket                                                        TypeScript · React
+      the order book my florist sister runs her shop from.
+
+  plb-algo-trader                                                        Python
+      a framework supports backtesting by batch, portfolio evaluation, and live trading.
+</pre>
+
+<div align="center">
+
+🐱  ( ๑ ˘ ᴗ ˘ ๑ )  **my toolbox**  ( ๑ ˘ ᴗ ˘ ๑ )  🐱
+
+</div>
+
+<pre>
+  ── stack ───────────────────────────────────────────────────────────────────────────────
+
+  lang             Python · SQL
+  data             Databricks · DuckDB · Polars · Airflow · dbt · Delta · Iceberg
+  cloud            AWS · Azure
+  coding agent     Claude Code
+  agent framework  Google ADK · LangGraph
+</pre>
+
+<div align="center">
+
+[![](https://img.shields.io/badge/zero--trust--relay-7150CC?style=flat)](https://github.com/whitewhiteqq/zero-trust-relay)
+[![](https://img.shields.io/badge/aws--test--plugin-C2477F?style=flat)](https://github.com/whitewhiteqq/aws-test-plugin)
+
+[hkdse math toolbox](demo-hkdse.html) · [substrate](demo-substrate.html) · [florist basket](demo-basket.html)
+
+૮꒰ ˶ • ༝ • ˶꒱ა  ♡  *built for people around me*
+
+<!-- ──────────────────────────── end banner ────────────────────────────
+     #105, the rooftop at dusk, whole: birds scatter, Canti lifts off the
+     mast and flies out of frame. 67 frames over 4690 ms, thinned to 34 by
+     the frame step but not shortened. Same 640x320 as the top band, so the
+     page closes on the shape it opens on.                                -->
+<img src="assets/banner-end.gif" width="100%" alt="" />
+
+<!-- Stats cards stay off. The public github-readme-stats instance counts public
+     repos only, so with 2 public repos it renders near-zero and makes the
+     profile look emptier than it is. Turn on private contributions on the
+     contribution graph instead: Profile -> the control above the graph. -->
+
+</div>

@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>florist-basket — interactive demo</title>
+<meta name="description" content="A clickable mock of a phone-first order manager for a one-person flower shop." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Noto+Serif+TC:wght@200;300;500;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<style>
+/* ══════════════ page chrome (light 夢核) ══════════════════════════════════════ */
+:root{
+  --page:#f8f4ff; --card:#ffffff; --card2:#f2ecfe; --edge:#e4dbf7;
+  --fg:#2f2552; --dim:#5e5384; --faint:#736792; --lilac:#7150cc; --glow:#b83f7d;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+/* 夢核: three pastel light pools over the near-white base. background-attachment:fixed
+   holds them still while the page scrolls, so the page reads as one lit room. */
+body{color:var(--fg);background-color:var(--page);
+     background-image:
+       radial-gradient(920px 560px at 10% -12%,rgba(183,157,255,.34),transparent 64%),
+       radial-gradient(800px 480px at 90% 0%,rgba(255,184,232,.34),transparent 62%),
+       radial-gradient(780px 720px at 50% 112%,rgba(160,225,255,.30),transparent 68%);
+     background-repeat:no-repeat;background-attachment:fixed;
+     font:15px/1.7 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:var(--lilac);text-decoration:none}
+a:hover{text-decoration:underline}
+.shell{max-width:1180px;margin:0 auto;padding:0 24px}
+
+nav{position:sticky;top:0;z-index:400;background:rgba(248,244,255,.86);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--edge)}
+nav .shell{display:flex;gap:12px;align-items:center;height:48px;font-size:12.5px}
+nav .back{color:var(--dim)} nav .back:hover{color:var(--fg)}
+nav .nm{color:var(--lilac);font-weight:600}
+nav .tagline{color:var(--faint);margin-left:auto;font-size:11.5px}
+nav .tagline a{color:var(--dim)} nav .tagline a:hover{color:var(--fg)}
+@media(max-width:760px){nav .tagline{display:none}}
+
+header.intro{padding:38px 0 22px}
+header.intro h1{font:600 24px/1.3 "Noto Serif TC",Georgia,serif;margin:0}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
+.pills .pl{font-size:11.5px;color:var(--dim);border:1px solid var(--edge);
+           background:var(--card);border-radius:999px;padding:4px 11px}
+.pills .pl b{color:var(--fg);font-weight:500}
+/* the one-line "try it" hint under the pills */
+.try{margin:19px 0 0;font-size:12.5px;line-height:1.7;color:var(--faint);max-width:78ch}
+.try b{color:var(--glow);font-weight:600}
+
+.stage{display:flex;justify-content:center;padding:14px 0 58px}
+.device{position:relative;width:430px;height:872px;flex:none;
+        border:11px solid #2f2552;border-radius:44px;overflow:hidden;
+        box-shadow:0 30px 70px rgba(75,45,140,.20),0 0 0 1px var(--edge)}
+
+/* demo-only notice — the same block sits on all three pages */
+.notice{display:flex;gap:13px;align-items:flex-start;margin:18px 0 0;
+  border:1px solid rgba(113,80,204,.28);border-left:3px solid var(--lilac);
+  border-radius:9px;background:rgba(113,80,204,.06);padding:12px 15px}
+.notice .tag{flex:none;padding-top:2px;color:var(--lilac);
+  font:600 10px/1.6 var(--mono);letter-spacing:2px;text-transform:uppercase}
+.notice p{margin:0;max-width:78ch;color:var(--dim);font-size:13.5px;line-height:1.65}
+.notice b{color:var(--fg);font-weight:600}
+.notice a{color:var(--lilac);text-decoration:none;
+  border-bottom:1px solid rgba(113,80,204,.42)}
+.notice a:hover{color:var(--glow);border-bottom-color:var(--glow)}
+
+footer{border-top:1px solid var(--edge);padding:32px 0 58px;color:var(--faint);font-size:12.5px}
+
+/* ══════════════ the app's own stylesheet, verbatim ══════════════════════
+   Tokens, radii, type scale and component rules are copied from the real
+   src/index.css. Only `position:fixed` is re-anchored to the phone frame.  */
+.device{
+  --forest:#2E4636;--forest-d:#21342790;--sage:#6E8C66;--moss:#9DB596;
+  --cream:#F4F0E6;--paper:#FCFAF4;
+  --clay:#BC6F4A;--clay-l:#EAD6C8;--rose:#C28B7E;--rose-l:#EEDDD6;
+  --ink:#2B241D;--muted:#8B7F70;--line:#E5DCCF;--gold:#B08A55;
+  background:var(--cream);font-family:'Noto Sans TC',sans-serif;color:var(--ink);
+  font-size:16px;line-height:1.5;text-align:left
+}
+.device button,.device input,.device textarea,.device select{font-size:16px}
+.wrap{width:100%;height:100%;overflow-y:auto;background:var(--cream);
+      position:relative;padding-bottom:74px;overflow-x:hidden;scrollbar-width:none}
+.wrap::-webkit-scrollbar{display:none}
+.num{font-family:'Fraunces',serif;font-variant-numeric:lining-nums}
+
+.top{padding:20px 20px 16px;background:var(--forest);color:#F4F0E6;position:relative;overflow:hidden}
+.top::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;
+  border-radius:50%;background:radial-gradient(circle,rgba(157,181,150,.25),transparent 70%)}
+.top h1{font-family:'Noto Serif TC',serif;font-size:1.2rem;font-weight:600;letter-spacing:.04em;
+  display:flex;align-items:center;gap:8px}
+.top .sub{font-size:.7rem;opacity:.6;margin-top:3px;letter-spacing:.18em;font-family:'Fraunces',serif}
+
+.page{padding:18px 16px 24px;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec-t{font-family:'Noto Serif TC',serif;font-size:.95rem;font-weight:600;color:var(--forest);
+  margin:0 2px 11px;display:flex;align-items:center;gap:7px}
+.sec-t .ln{flex:1;height:1px;background:var(--line)}
+
+.rev{background:linear-gradient(135deg,var(--forest),#3a5743);border-radius:18px;padding:18px 20px;
+  color:#F4F0E6;position:relative;overflow:hidden;box-shadow:0 8px 24px -10px rgba(46,70,54,.5)}
+.rev::before{content:'❀';position:absolute;right:16px;bottom:-8px;font-size:4.5rem;opacity:.08}
+.rev .mlabel{font-size:.7rem;opacity:.7;letter-spacing:.1em}
+.rev .big{font-family:'Fraunces',serif;font-size:2.1rem;font-weight:500;margin:2px 0 12px;line-height:1}
+.rev .grid{display:flex;gap:8px}
+.rev .cell{flex:1;background:rgba(244,240,230,.1);border-radius:11px;padding:9px 11px}
+.rev .cell .l{font-size:.64rem;opacity:.65}
+.rev .cell .v{font-family:'Fraunces',serif;font-size:1.05rem;margin-top:2px}
+.rev .cell.due .v{color:#F0C9A8}
+.rev-month{background:rgba(244,240,230,.14);border:1px solid rgba(244,240,230,.25);color:#F4F0E6;
+  font-family:'Noto Sans TC';font-size:.72rem;border-radius:8px;padding:4px 8px;outline:none}
+
+.cat-break{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.cat-pill{font-size:.72rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);
+  border-radius:20px;padding:5px 11px;white-space:nowrap}
+.cat-pill b{font-family:'Fraunces',serif;color:var(--forest);margin-left:2px}
+.cat-pill.tax{background:#F6EAD2;border-color:#E6D3A8;color:#7a5d18}
+.cat-pill.tax b{color:#7a5d18}
+
+.task{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+  margin-bottom:9px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.task .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.ic.pickup{background:var(--clay-l);color:var(--clay)}
+.ic.deliver{background:#DCE7D8;color:var(--sage)}
+.ic.card{background:var(--rose-l);color:var(--rose)}
+.ic.buy{background:#EAE3D0;color:var(--gold)}
+.task .mid{flex:1;min-width:0}
+.task .nm{font-weight:500;font-size:.9rem}
+.task .ds{font-size:.74rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.task .rt{font-size:.72rem;color:var(--clay);font-weight:500;text-align:right;white-space:nowrap}
+.empty-task{font-size:.78rem;color:var(--muted);padding:8px 4px 2px}
+
+.todo-add{display:flex;gap:8px;margin-bottom:10px}
+.todo-add input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:11px;
+  font-family:'Noto Sans TC';font-size:.86rem;background:var(--paper);outline:none;color:var(--ink)}
+.todo-add input:focus{border-color:var(--sage)}
+.todo-add button{width:42px;border:none;border-radius:11px;background:var(--forest);color:#F4F0E6;
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+.todo{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;padding:11px 13px;margin-bottom:7px}
+.todo-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--moss);
+  background:var(--paper);color:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:13px;line-height:1}
+.todo.done .todo-check{background:var(--sage);border-color:var(--sage)}
+.todo-text{flex:1;font-size:.86rem;cursor:pointer;line-height:1.4}
+.todo.done .todo-text{text-decoration:line-through;color:var(--muted)}
+.todo-del{border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer;
+  padding:0 4px;line-height:1}
+
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.bdg{font-size:.62rem;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.02em}
+.bdg-type{background:var(--forest);color:#F4F0E6}
+.bdg-type.deliver{background:var(--sage)}
+.pay-un{background:#F3E2DC;color:#B5503A}
+.pay-dep{background:#F6EAD2;color:#9A7321}
+.pay-paid{background:#DEEAD9;color:#4E7344}
+.bdg-occ{background:var(--cream);color:var(--muted);border:1px solid var(--line)}
+.bdg-cat{background:var(--clay-l);color:var(--clay)}
+.bdg-tax{background:#F6EAD2;color:#7a5d18}
+
+.oc{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:14px;
+  margin-bottom:10px;transition:.15s;cursor:pointer;display:flex;gap:11px;align-items:stretch}
+.oc:active{transform:scale(.99)}
+.oc-main{flex:1;min-width:0}
+.oc-colors{display:flex;flex-direction:column;flex:none;width:26px;border-radius:8px;
+  overflow:hidden;border:1px solid var(--line);align-self:stretch}
+.cbar{flex:1;min-height:10px;display:block}
+.oc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.oc-nm{font-family:'Noto Serif TC',serif;font-weight:600;font-size:1rem}
+.oc-ph{font-size:.7rem;color:var(--muted);margin-top:1px}
+.oc-rt{text-align:right;flex-shrink:0}
+.oc-time{font-size:.72rem;color:var(--muted)}
+.oc-items{font-size:.8rem;color:#5a4d3f;line-height:1.5;margin-bottom:8px}
+.oc-f{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.oc-price{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--forest);flex:none}
+.toggles{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.tg{font-size:.64rem;padding:4px 10px;border-radius:20px;cursor:pointer;user-select:none;
+  border:1px solid transparent;transition:.15s}
+.tg.off{background:var(--cream);color:var(--muted);border-color:var(--line)}
+.tg.card-on{background:var(--rose);color:#fff}
+.tg.done-on{background:var(--sage);color:#fff}
+.tg.deliver-on{background:var(--gold);color:#fff}
+.tg.invoice-on{background:var(--forest);color:#fff}
+
+.searchbar{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;padding:9px 13px;margin-bottom:11px;color:var(--muted)}
+.searchbar input{border:none;background:none;outline:none;font-family:'Noto Sans TC';
+  font-size:.86rem;width:100%;color:var(--ink)}
+.chips{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;
+  scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{font-size:.76rem;padding:6px 13px;border-radius:20px;border:1px solid var(--line);
+  background:var(--paper);color:var(--muted);white-space:nowrap;cursor:pointer;transition:.15s}
+.chip.on{background:var(--forest);color:#F4F0E6;border-color:var(--forest)}
+.chips.cat{margin-top:-2px;flex-wrap:nowrap}
+
+.vtoggle{display:flex;gap:6px;margin:2px 0 12px;background:var(--cream);padding:4px;border-radius:12px}
+.vtoggle button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;
+  border:none;background:transparent;border-radius:9px;font-size:14px;font-weight:600;
+  color:var(--muted);cursor:pointer;font-family:'Noto Sans TC'}
+.vtoggle button.on{background:var(--paper);color:var(--forest);box-shadow:0 1px 4px rgba(46,70,54,.12)}
+
+.date-h{font-family:'Fraunces',serif;font-size:.82rem;color:var(--clay);font-weight:500;
+  letter-spacing:.03em;margin:18px 2px 9px;display:flex;justify-content:space-between;align-items:center}
+.date-h .meta{font-family:'Noto Sans TC';font-size:.72rem;color:var(--muted)}
+
+.cal{margin-top:2px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-head span{font-weight:700;color:var(--forest);font-family:'Noto Serif TC',serif;font-size:16px}
+.cal-head button{width:34px;height:34px;border:1px solid var(--line);background:var(--paper);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--forest);cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-dowc{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:2px 0}
+.cal-cell{position:relative;aspect-ratio:1;border:1px solid var(--line);background:var(--paper);
+  border-radius:10px;padding:4px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:flex-start;overflow:hidden}
+.cal-cell.empty{border:none;background:transparent;cursor:default}
+.cal-cell .cal-d{font-size:13px;color:var(--ink);font-weight:500}
+.cal-cell.today{box-shadow:inset 0 0 0 2px var(--forest)}
+.cal-cell.peak{background:var(--rose-l)}
+.cal-cell.sel{background:var(--forest)}
+.cal-cell.sel .cal-d{color:#fff}
+.cal-cnt{margin-top:auto;align-self:flex-end;min-width:17px;height:17px;padding:0 4px;
+  background:var(--clay);color:#fff;border-radius:9px;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.cal-cell.sel .cal-cnt{background:var(--gold)}
+.cal-detail{margin-top:16px}
+
+.fest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.fcell{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  gap:4px;aspect-ratio:1;padding:7px 4px;background:var(--paper);border:1px solid var(--line);
+  border-radius:13px}
+.fcell.peak{background:linear-gradient(160deg,var(--rose-l),var(--paper));border-color:var(--rose)}
+.fcell .fcn{font-size:11.5px;font-weight:600;color:var(--ink);line-height:1.12}
+.fcell .fcd{font-size:10.5px;font-weight:600;color:var(--clay);line-height:1.05}
+
+/* FAB + nav: fixed in the app, anchored to the frame here */
+.fab{position:absolute;bottom:88px;right:16px;width:54px;height:54px;border-radius:17px;
+  background:var(--clay);color:#fff;border:none;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 20px -6px rgba(188,111,74,.6);cursor:pointer;z-index:80;transition:.15s}
+.fab:active{transform:scale(.92)}
+.nav{position:absolute;bottom:0;left:0;width:100%;background:var(--paper);
+  border-top:1px solid var(--line);display:flex;z-index:70}
+.nav button{flex:1;border:none;background:none;padding:9px 2px 10px;display:flex;
+  flex-direction:column;align-items:center;gap:3px;color:var(--muted);cursor:pointer;
+  font-family:'Noto Sans TC';font-size:.64rem;transition:.15s}
+.nav button.on{color:var(--forest)}
+.nav button.on .dot{opacity:1}
+.nav .dot{width:4px;height:4px;border-radius:50%;background:var(--clay);opacity:0;margin-top:1px}
+
+.ovl{position:absolute;inset:0;background:rgba(43,36,29,.5);backdrop-filter:blur(2px);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.modal{background:var(--cream);border-radius:22px 22px 0 0;width:100%;max-height:94%;
+  overflow-y:auto;animation:slideup .28s cubic-bezier(.2,.8,.3,1);scrollbar-width:none}
+.modal::-webkit-scrollbar{display:none}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+.m-head{position:sticky;top:0;background:var(--cream);padding:18px 18px 12px;display:flex;
+  justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);z-index:5}
+.m-head h2{font-family:'Noto Serif TC',serif;font-size:1.08rem;font-weight:600;color:var(--forest)}
+.m-head button{border:none;background:var(--paper);width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer}
+.m-body{padding:16px 18px 36px}
+
+.aibox{background:linear-gradient(135deg,#EFF3EC,#F3EEE4);border:1px solid var(--moss);
+  border-radius:14px;padding:13px;margin-bottom:16px}
+.aibox .lbl{font-size:.74rem;color:var(--forest);font-weight:500;display:flex;align-items:center;
+  gap:6px;margin-bottom:8px}
+.aibox textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;
+  font-family:'Noto Sans TC';font-size:.84rem;resize:vertical;min-height:72px;outline:none;
+  background:var(--paper);color:var(--ink);line-height:1.6}
+.aibox textarea:focus{border-color:var(--sage)}
+.ai-btn{width:100%;margin-top:8px;padding:11px;background:var(--forest);color:#F4F0E6;border:none;
+  border-radius:10px;font-family:'Noto Sans TC';font-size:.86rem;font-weight:500;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.ai-btn:disabled{opacity:.6;cursor:default}
+.spin{width:15px;height:15px;border:2px solid rgba(244,240,230,.35);border-top-color:#F4F0E6;
+  border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ai-ok{background:#E2EDDD;border:1px solid var(--moss);color:#4E7344;font-size:.76rem;
+  border-radius:9px;padding:9px 11px;margin-top:8px;line-height:1.55}
+.divider{text-align:center;font-size:.7rem;color:var(--muted);margin:14px 0;letter-spacing:.05em}
+
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:.72rem;color:var(--muted);margin-bottom:5px;letter-spacing:.02em}
+.fi{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+  font-family:'Noto Sans TC';font-size:.86rem;background:var(--paper);color:var(--ink);
+  outline:none;transition:.15s}
+.fi:focus{border-color:var(--sage)}
+textarea.fi{resize:vertical;min-height:56px;line-height:1.5}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{padding:8px 15px;border-radius:10px;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);font-family:'Noto Sans TC';font-size:.82rem;cursor:pointer;transition:.15s}
+.seg button.on{background:var(--sage);color:#fff;border-color:var(--sage)}
+.seg.small button{padding:6px 12px;font-size:.78rem}
+.delivery-block{background:#EEF2EB;border:1px dashed var(--moss);border-radius:12px;padding:13px;
+  margin-bottom:14px}
+.delivery-block .bt{font-size:.72rem;color:var(--sage);font-weight:500;margin-bottom:11px;
+  display:flex;align-items:center;gap:5px}
+.save{width:100%;padding:14px;background:var(--clay);color:#fff;border:none;border-radius:13px;
+  font-family:'Noto Serif TC';font-size:.95rem;font-weight:600;cursor:pointer;margin-top:6px;
+  transition:.15s}
+.save:active{transform:scale(.99);background:#a55f3d}
+.cancel{width:100%;padding:11px;background:none;border:none;color:var(--muted);
+  font-family:'Noto Sans TC';font-size:.85rem;cursor:pointer;margin-top:3px}
+
+.swatch-row{display:flex;flex-wrap:wrap;gap:7px}
+.cswatch{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 6px;
+  border:1.5px solid var(--line);border-radius:999px;background:var(--paper);cursor:pointer;
+  font-size:13px;color:var(--ink);transition:.15s}
+.cswatch.on{border-color:var(--forest);background:rgba(46,70,54,.08);
+  box-shadow:0 0 0 2px rgba(46,70,54,.14)}
+.cdot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.18);flex:none}
+
+.dt-row{display:flex;padding:11px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+.dt-row .k{color:var(--muted);width:88px;flex-shrink:0;font-size:.78rem}
+.dt-row .v{flex:1;line-height:1.55}
+.dt-card{background:var(--rose-l);border-radius:11px;padding:11px 13px;font-style:italic;
+  color:#8a5043;font-size:.84rem;line-height:1.5;margin:12px 0}
+
+.pt-bar{display:flex;gap:9px;margin-bottom:14px}
+.pt-bar input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:11px;
+  font-family:'Noto Sans TC';font-size:.86rem;background:var(--paper);outline:none;color:var(--ink)}
+.pt-print{padding:10px 18px;background:var(--forest);color:#F4F0E6;border:none;border-radius:11px;
+  font-family:'Noto Sans TC';font-size:.84rem;cursor:pointer;white-space:nowrap;display:flex;
+  align-items:center;gap:6px}
+.pt-print:disabled{opacity:.4;cursor:default}
+.selrow{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;
+  color:var(--muted);margin-bottom:10px}
+.check-lbl{display:flex;align-items:center;gap:7px;cursor:pointer}
+.check-lbl input{width:17px;height:17px;accent-color:var(--forest)}
+.psel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 13px;
+  margin-bottom:8px;display:flex;gap:11px;align-items:flex-start;cursor:pointer}
+.psel input{width:17px;height:17px;accent-color:var(--forest);margin-top:2px;flex-shrink:0}
+
+.shop-note{font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:15px}
+.sord{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:11px 13px;
+  margin-bottom:7px;display:flex;gap:11px;align-items:center;cursor:pointer}
+.sord input{width:17px;height:17px;accent-color:var(--forest);flex-shrink:0}
+.gen{width:100%;padding:14px;background:var(--forest);color:#F4F0E6;border:none;border-radius:13px;
+  font-family:'Noto Serif TC';font-size:.92rem;font-weight:600;cursor:pointer;margin:14px 0 4px;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+.gen:disabled{opacity:.5;cursor:default}
+.shoplist{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  margin-top:16px;box-shadow:0 6px 18px -10px rgba(46,70,54,.3)}
+.sl-head{background:var(--forest);color:#F4F0E6;padding:14px 16px}
+.sl-head .t{font-family:'Noto Serif TC';font-size:1rem;font-weight:600}
+.sl-head .s{font-size:.74rem;opacity:.75;margin-top:3px}
+.sl-budget{display:flex;align-items:center;gap:9px;padding:11px 16px;background:#EFF3EC;
+  border-bottom:1px solid var(--line)}
+.sl-budget label{font-size:.76rem;color:var(--muted);white-space:nowrap}
+.sl-budget input{flex:1;padding:8px 11px;border:1px solid var(--line);border-radius:9px;
+  font-family:'Fraunces';font-size:.9rem;outline:none;background:var(--paper);color:var(--ink)}
+.sli{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:.12s}
+.sli:last-child{border-bottom:none}
+.sli input{width:18px;height:18px;accent-color:var(--sage);flex-shrink:0}
+.sli .nm{flex:1;font-size:.88rem}
+.sli .qt{font-size:.8rem;color:var(--muted)}
+.sli.done{opacity:.45}
+.sli.done .nm{text-decoration:line-through}
+.sl-foot{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;
+  font-size:.76rem;color:var(--muted);background:#F7F3EA}
+
+.exp-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.exp-date{flex:1 1 128px;min-width:0}
+.exp-cat{flex:0 0 76px}
+.exp-pp-sel{flex:0 0 92px}
+.exp-item{flex:1 1 110px;min-width:0}
+.exp-amt{flex:0 0 84px}
+.exp-add{flex:none;width:40px;height:40px;border:none;border-radius:11px;background:var(--forest);
+  color:#F4F0E6;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.exp-opts{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:9px 2px 0;
+  font-size:.78rem;color:var(--muted)}
+.exp-ck{display:flex;align-items:center;gap:6px;cursor:pointer}
+.exp-ck input{width:15px;height:15px;accent-color:var(--sage)}
+.exp-pp{flex:none;font-size:.66rem;color:var(--sage);background:#EEF2EB;border:1px solid #DCE6D6;
+  border-radius:999px;padding:1px 7px;white-space:nowrap}
+.exp-row{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--paper);
+  border:1px solid var(--line);border-radius:11px;margin-bottom:7px}
+.exp-row.taxed{box-shadow:inset 3px 0 0 var(--gold)}
+.exp-d{font-size:.74rem;color:var(--muted);font-family:'Fraunces',serif;flex:none;width:38px}
+.exp-it{flex:1;min-width:0;font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-a{font-family:'Fraunces',serif;color:var(--clay);font-size:.95rem;flex:none}
+.ledger-export{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:.72rem;
+  border:1px solid var(--line);background:var(--paper);color:var(--forest);border-radius:20px;
+  padding:5px 11px;cursor:pointer;font-family:inherit}
+.tax-box{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:11px 14px}
+.tax-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.tax-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed var(--line)}
+.tax-q{flex:1;font-size:.8rem;color:var(--forest);font-weight:500}
+.tax-fig{font-size:.73rem;color:var(--muted);white-space:nowrap}
+.tax-fig b{font-family:'Fraunces',serif;color:var(--forest);font-weight:500;margin-left:2px}
+.tax-hint{font-size:.74rem;color:var(--muted);line-height:1.55;padding:4px 0 2px}
+.mat-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;margin-bottom:7px}
+.mat-info{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
+.mat-ph{width:44px;height:44px;border-radius:9px;border:1px solid var(--line);flex:none;
+  display:flex;align-items:center;justify-content:center;background:#F3F6F1;color:var(--moss)}
+.mat-nm{font-weight:500;font-size:.92rem;color:var(--ink)}
+.mat-sub{display:flex;flex-wrap:wrap;gap:8px;font-size:.7rem;color:var(--muted);margin-top:2px}
+.mat-stock{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--forest);line-height:1;flex:none}
+.mat-stock small{font-family:'Noto Sans TC';font-size:.62rem;color:var(--muted);margin-right:3px}
+
+/* 大型工作: wedding installs and flower classes. A wedding is one customer with many
+   quoted items and three staged payments; a course is one class with many
+   students. Both run for weeks, so they get a dated task flow of their own. */
+.pj{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:14px;
+  margin-bottom:10px;cursor:pointer;transition:.15s}
+.pj.on{border-color:var(--sage);box-shadow:0 2px 14px rgba(46,70,54,.09)}
+.pj-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pj-nm{font-family:'Noto Serif TC',serif;font-weight:600;font-size:1rem}
+.pj-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.pj-amt{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--forest);text-align:right;
+  flex:none;line-height:1.2}
+.pj-amt small{font-family:'Noto Sans TC';font-size:.62rem;color:var(--muted);display:block}
+.bdg-kind{background:var(--forest);color:#F4F0E6}
+.bdg-kind.course{background:var(--sage)}
+.bdg-st{background:var(--cream);color:var(--muted);border:1px solid var(--line)}
+.bdg-st.confirmed{background:#E7EFE5;color:var(--forest);border-color:#CFE0CA}
+/* the margin bar: her own thresholds, not a generic percentage read-out */
+.pj-marg{margin-top:11px}
+.pj-marg .bar{height:6px;border-radius:4px;background:var(--cream);overflow:hidden;
+  border:1px solid var(--line)}
+.pj-marg .fill{height:100%;background:var(--sage);display:block}
+.pj-marg .fill.ideal{background:var(--forest)}
+.pj-marg .fill.below{background:var(--clay)}
+.pj-marg .lg{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);
+  margin-top:5px}
+.pj-marg .lg b{font-family:'Fraunces',serif;color:var(--forest);font-weight:500}
+.pj-body{border-top:1px dashed var(--line);margin-top:13px;padding-top:12px}
+.pj-cap{font-size:.68rem;color:var(--muted);letter-spacing:.06em;margin:0 0 8px}
+.qrow{display:flex;align-items:center;gap:9px;font-size:.79rem;padding:5px 0}
+.qrow + .qrow{border-top:1px solid var(--line)}
+.qrow .st{flex:none;width:17px;text-align:center;font-size:.8rem}
+.qrow .st.yes{color:var(--forest)} .qrow .st.tbd{color:var(--gold)}
+.qrow .st.no{color:var(--muted);opacity:.5}
+.qrow.off{color:var(--muted);text-decoration:line-through;opacity:.55}
+.qrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow .v{font-family:'Fraunces',serif;color:var(--forest);flex:none}
+.pj-task{display:flex;gap:9px;align-items:flex-start;font-size:.79rem;padding:6px 0}
+.pj-task + .pj-task{border-top:1px solid var(--line)}
+.pj-task .dot2{width:7px;height:7px;border-radius:50%;background:var(--line);flex:none;margin-top:6px}
+.pj-task.done .dot2{background:var(--sage)}
+.pj-task.done .t{color:var(--muted);text-decoration:line-through}
+.pj-task .t{flex:1;min-width:0}
+.pj-task .hint{display:block;font-size:.67rem;color:var(--muted);margin-top:1px}
+.pj-task .d{flex:none;font-size:.68rem;color:var(--muted);font-family:'Fraunces',serif}
+
+.empty{text-align:center;padding:54px 24px;color:var(--muted)}
+.empty .e-ic{margin-bottom:14px;opacity:.5;display:flex;justify-content:center}
+.empty p{font-size:.86rem;line-height:1.7}
+.demo-note{font-size:.68rem;color:var(--muted);text-align:center;padding:6px 12px;
+  background:#EFEADF;border-radius:8px;margin-bottom:14px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<nav><div class="shell">
+  <a class="back" href="https://github.com/whitewhiteqq">&larr; profile</a>
+  <span class="nm">florist-basket</span>
+  <span class="tagline">also &middot; <a href="demo-hkdse.html">hkdse-math-toolbox</a>
+    &middot; <a href="demo-substrate.html">substrate</a></span>
+</div></nav>
+
+<div class="shell">
+<header class="intro">
+  <h1>An order management app for florist shops in Taiwan</h1>
+  <div class="pills">
+    <span class="pl"><b>TypeScript</b> + React</span>
+  </div>
+  <p class="try"><b>My florist sister runs a shop in Taiwan.</b> This is her order book.
+    Press the clay <b>+</b> and paste the sample message. Then open <b>大型工作</b>.</p>
+  <div class="notice">
+    <span class="tag">demo</span>
+    <p><b>This page is a demo, not the app.</b> The real app is private, and there is no
+      public sign-up. Do you want access, or a GA release?
+      <a href="https://github.com/whitewhiteqq">Ask me on GitHub</a>.</p>
+  </div>
+</header>
+</div>
+
+<div class="stage"><div class="device" id="device"></div></div>
+
+
+<footer><div class="shell">
+  A demo of a private project. No analytics, no real customer data. The page sends
+  nothing anywhere; the only request it makes is for two Google fonts.
+  For access or a GA release, ask on
+  <a href="https://github.com/whitewhiteqq">my GitHub profile</a>.
+</div></footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   Invented data in the real shapes. Nothing here leaves the page.
+   ═══════════════════════════════════════════════════════════════════ */
+const esc = s => String(s == null ? "" : s)
+  .replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const WD = ["日","一","二","三","四","五","六"];
+function D(n){ const d = new Date(); d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")
+         +"-"+String(d.getDate()).padStart(2,"0"); }
+const today = D(0);
+const fmt = n => "$" + Math.round(n||0).toLocaleString("en-US");
+const fmtShort = s => s ? (+s.slice(5,7)) + "/" + (+s.slice(8,10)) : "";
+function fmtDate(s){
+  if(!s) return "日期未定";
+  const y=+s.slice(0,4), m=+s.slice(5,7), d=+s.slice(8,10);
+  return m+" 月 "+d+" 日 · 週"+WD[new Date(y,m-1,d).getDay()];
+}
+
+const I = {
+  home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  orders:'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+  print:'<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
+  shop:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  ledger:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+  projects:'<path d="M3 10h18V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M21.3 14.7a2.4 2.4 0 0 0-3.4 0l-.4.3-.3-.3a2.4 2.4 0 0 0-3.5 0 2.5 2.5 0 0 0 0 3.5l3.8 3.8 3.8-3.8a2.5 2.5 0 0 0 0-3.5Z"/>',
+  plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.6a1 1 0 0 0-.2-.6l-3.5-4.4A1 1 0 0 0 17.5 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  pack:'<path d="m7.5 4.3 9 5.1"/><path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  flower:'<circle cx="12" cy="8" r="2.4"/><path d="M12 5.6a2.6 2.6 0 1 1 2.6 2.6"/><path d="M12 5.6a2.6 2.6 0 1 0-2.6 2.6"/><path d="M12 10.4a2.6 2.6 0 1 0 2.6-2.6"/><path d="M12 10.4a2.6 2.6 0 1 1-2.6-2.6"/><path d="M12 11v11"/><path d="M12 22c4.2 0 7-1.7 7-5-4.2 0-7 1.7-7 5Z"/><path d="M12 22c-4.2 0-7-1.7-7-5 4.2 0 7 1.7 7 5Z"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  list:'<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+  cal:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  spark:'<path d="M12 2.5 13.9 8 19.5 9.9 13.9 11.8 12 17.4 10.1 11.8 4.5 9.9 10.1 8Z"/><path d="M18.5 15.5 19.3 18 21.5 18.8 19.3 19.6 18.5 22 17.7 19.6 15.5 18.8 17.7 18Z"/>',
+  left:'<path d="m15 18-6-6 6-6"/>', right:'<path d="m9 18 6-6-6-6"/>',
+  down:'<path d="m6 9 6 6 6-6"/>', box:'<path d="M3 8h18v12H3z"/><path d="M3 8l2-4h14l2 4"/>',
+  dl:'<path d="M12 3v12"/><path d="m7 12 5 5 5-5"/><path d="M4 21h16"/>',
+};
+const ic = (n,s) => '<svg width="'+(s||18)+'" height="'+(s||18)+'" viewBox="0 0 24 24" '
+  + 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" '
+  + 'stroke-linejoin="round">' + I[n] + '</svg>';
+const tulip = (s,c) => '<svg width="'+s+'" height="'+s+'" viewBox="0 0 64 80" fill="none" '
+  + 'stroke="'+(c||"#97AE94")+'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'
+  + '<path d="M23 27C22 13 27 7 32 7C37 7 42 13 41 27Z"/><path d="M28 8C27 15 28 22 31 27"/>'
+  + '<path d="M36 8C37 15 36 22 33 27"/><path d="M32 27L32 66"/>'
+  + '<path d="M32 44C24 41 18 48 19 59C26 57 31 51 32 46"/>'
+  + '<path d="M32 39C40 36 47 43 46 54C39 52 33 46 32 41"/></svg>';
+
+/* ── colour palette (the real one) ────────────────────────────────────── */
+const CARD_COLORS = [
+  {label:"多巴胺", value:"dopamine", swatch:"linear-gradient(135deg,#FF5CA8,#FFC93C 52%,#37C0C8)"},
+  {label:"粉彩調", value:"pastel",   swatch:"linear-gradient(135deg,#F8C8DC,#CFE8CB 52%,#C9DDF2)"},
+  {label:"桃粉", value:"#F4B49B", swatch:"#F4B49B"},
+  {label:"正紅", value:"#D7322E", swatch:"#D7322E"},
+  {label:"明黃", value:"#FBD024", swatch:"#FBD024"},
+  {label:"淺綠", value:"#A8C79A", swatch:"#A8C79A"},
+  {label:"冰川藍", value:"#9CC4D6", swatch:"#9CC4D6"},
+  {label:"米", value:"#E7D9C3", swatch:"#E7D9C3"},
+  {label:"白", value:"#FFFFFF", swatch:"#FFFFFF"},
+];
+const CMAP = new Map(CARD_COLORS.map(c => [c.value, c]));
+const swatchOf = v => (CMAP.get(v) || {}).swatch || v;
+
+const CATEGORIES = ["花束","捧花","花禮","佈置","課程","節日","其他"];
+const OCCASIONS  = ["生日","畢業","開幕","告別","情人節","母親節","週年","其他"];
+const TIME_OPTS  = ["上午","下午","晚上","待定"];
+const PICKUP_TRANSPORTS = ["汽車","公車","機車"];
+const DELIVERY_METHODS  = ["專人專送","lala送"];
+const FEE_PAYERS = ["到付","先付"];
+const PAY = { unpaid:{label:"未付款",cls:"pay-un"}, deposit:{label:"已付訂金",cls:"pay-dep"},
+              paid:{label:"已付清",cls:"pay-paid"} };
+
+function mk(o){ return Object.assign({
+  category:"", taxExempt:false, customerName:"", phone:"", deliveryType:"pickup",
+  date:"", timeSlot:"", timeText:"", recipientName:"", recipientPhone:"", address:"",
+  deliveryFee:0, occasion:"", items:"", colorScheme:"", cardColors:[], bouquetUse:[],
+  holderHeight:"", dressStyle:"", imageIds:[], price:0, paymentStatus:"unpaid",
+  depositAmount:0, paymentMethod:"", cardMessage:"", notes:"", pickupTransport:"",
+  deliveryMethod:"", deliveryFeePayer:"", cardWritten:false, status:"pending",
+  flowersBought:false, deliveryArranged:false, invoiced:false }, o); }
+
+let ORDERS = [
+  mk({id:"a1", category:"花束", customerName:"林小姐", phone:"0912-345-678",
+      deliveryType:"pickup", date:today, timeSlot:"下午", occasion:"生日",
+      items:"粉色系手綁花束，玫瑰＋桔梗＋尤加利葉", colorScheme:"粉色系",
+      cardColors:["pastel"], pickupTransport:"機車", price:1280,
+      paymentStatus:"deposit", depositAmount:500, paymentMethod:"轉帳",
+      cardMessage:"生日快樂，永遠美麗", notes:"客人對百合花粉過敏，請避開"}),
+  mk({id:"a2", category:"花禮", taxExempt:true, customerName:"陳先生", phone:"0922-111-222",
+      deliveryType:"delivery", date:today, timeSlot:"上午", recipientName:"王經理",
+      recipientPhone:"0933-444-555", address:"中山路 88 號 5 樓", deliveryFee:150,
+      occasion:"開幕", items:"開幕祝賀花籃，向日葵＋劍蘭，喜氣明亮", colorScheme:"喜氣明亮",
+      deliveryMethod:"lala送", deliveryFeePayer:"先付", price:2800,
+      paymentStatus:"paid", paymentMethod:"轉帳", cardMessage:"開業大吉，鴻圖大展",
+      cardWritten:true, flowersBought:true, deliveryArranged:true}),
+  mk({id:"a3", category:"花束", customerName:"Amy", phone:"0955-666-777",
+      deliveryType:"pickup", date:D(1), timeSlot:"晚上", timeText:"晚上 7 點",
+      occasion:"週年", items:"紅玫瑰 99 朵大花束", colorScheme:"紅色系",
+      cardColors:["#D7322E"], pickupTransport:"汽車", price:3999,
+      paymentStatus:"paid", paymentMethod:"現金", cardMessage:"在一起一週年快樂",
+      notes:"要加大蝴蝶結"}),
+  mk({id:"a4", category:"捧花", customerName:"小婷", phone:"0977-123-456",
+      deliveryType:"pickup", date:D(2), timeSlot:"上午", occasion:"其他",
+      items:"白綠色系新娘捧花，白玫瑰＋松蟲草＋銀葉菊", colorScheme:"白綠色系",
+      cardColors:["#FFFFFF","#A8C79A"], bouquetUse:["婚攝","結婚登記"],
+      holderHeight:"162 cm", dressStyle:"魚尾長裙", price:4200,
+      paymentStatus:"deposit", depositAmount:1500, paymentMethod:"轉帳",
+      notes:"新娘不要有香味的花"}),
+  mk({id:"a5", category:"花禮", customerName:"黃太太", phone:"0966-888-999",
+      deliveryType:"delivery", date:D(2), timeSlot:"下午", timeText:"下午 3 點前",
+      recipientName:"會場服務台", address:"文化路 12 號 · 二樓會場", deliveryFee:300,
+      occasion:"告別", items:"白色素雅罐花一對，白菊＋白玫瑰＋文心蘭",
+      colorScheme:"白色素雅", deliveryMethod:"專人專送", deliveryFeePayer:"到付",
+      price:3600, paymentStatus:"unpaid", cardMessage:"音容宛在",
+      notes:"需附輓聯，下午三點前送達"}),
+  mk({id:"a6", category:"節日", taxExempt:true, customerName:"周先生", phone:"0988-222-333",
+      deliveryType:"delivery", date:D(4), timeSlot:"上午", recipientName:"辦公室前台",
+      address:"民生路 5 號 12 樓", deliveryFee:120, occasion:"其他",
+      items:"辦公室週花，季節花材自由搭配，低彩度", colorScheme:"低彩度",
+      cardColors:["#E7D9C3"], deliveryMethod:"lala送", deliveryFeePayer:"先付",
+      price:1500, paymentStatus:"paid", paymentMethod:"轉帳",
+      status:"completed", flowersBought:true, deliveryArranged:true, invoiced:true}),
+];
+
+const FESTIVALS = [
+  {name:"中秋節",   md:"09-25", peak:false},
+  {name:"教師節",   md:"09-28", peak:false},
+  {name:"聖誕節",   md:"12-25", peak:true},
+  {name:"情人節",   md:"02-14", peak:true},
+  {name:"母親節",   md:"05-09", peak:true},
+  {name:"畢業季",   md:"06-15", peak:false},
+];
+function upcoming(n){
+  const y = +today.slice(0,4);
+  const all = [];
+  FESTIVALS.forEach(f => [y, y+1].forEach(yy => {
+    const date = yy + "-" + f.md;
+    if(date >= today) all.push({name:f.name, date, peak:f.peak,
+      daysLeft: Math.round((new Date(date) - new Date(today)) / 86400000)});
+  }));
+  all.sort((a,b) => a.date.localeCompare(b.date));
+  const seen = new Set();
+  return all.filter(f => !seen.has(f.name) && seen.add(f.name)).slice(0, n);
+}
+
+const EXPENSES = [
+  {id:"e1", date:D(-1), category:"花材", purpose:"花束", item:"玫瑰 · 粉 2 紮", amount:960, taxReport:true},
+  {id:"e2", date:D(-2), category:"資材", purpose:"", item:"緞帶 · 米白 3 捲", amount:420, taxReport:false},
+  {id:"e3", date:D(-4), category:"花材", purpose:"花禮", item:"向日葵 1 紮", amount:680, taxReport:true},
+  {id:"e4", date:D(-6), category:"其他", purpose:"", item:"市場停車", amount:60, taxReport:false},
+];
+/* 大型工作 — a wedding install and a flower class. A wedding is quoted item by
+   item, and each line is 要 / 待定 / 不要 until the couple signs; only 要 counts
+   towards the quote. A class is priced per student, or as one price for a
+   company booking. Both carry a dated task flow that counts back from the day. */
+const PROJECTS = [
+  {id:"p1", kind:"wedding", label:"婚禮佈置", status:"confirmed", statusLabel:"已確認",
+   name:"王先生・林小姐", where:"台北・信義區宴會廳", date:D(24), guests:"12 桌",
+   quote:[
+     {t:"舞台兼送客拍照區", st:"yes", v:18000},
+     {t:"迎賓區-迎賓板",    st:"yes", v:4800},
+     {t:"迎賓區-照片桌",    st:"yes", v:3200},
+     {t:"宴客區-新人主桌",  st:"yes", v:6500},
+     {t:"宴客區-賓客桌",    st:"tbd", v:9600},
+     {t:"新娘捧花・新郎胸花", st:"yes", v:3800},
+     {t:"進撤場費用",       st:"yes", v:4000},
+     {t:"花圈",            st:"no",  v:2600},
+   ],
+   cost:16400, tiers:{pass:55, normal:60, ideal:65},
+   invoice:"同行代開", invoiceNote:"報在同行公司名下，不列入她的報稅季報。",
+   tasks:[
+     {t:"完成簽報價表及按金", d:D(-9),  done:true},
+     {t:"場地堪察",          d:D(-6),  done:true},
+     {t:"完成合約備忘初稿，發給客人", d:D(8), done:true, hint:"場勘後兩星期內"},
+     {t:"客人匯訂金",        d:"",     done:true, hint:"回簽備忘後"},
+     {t:"設計 PPT",         d:D(-36), done:false, hint:"婚禮 1.5–2 個月前"},
+     {t:"資材・花器・道具清點", d:D(10), done:false, hint:"10 項小清單"},
+     {t:"預訂花材",          d:D(14),  done:false, hint:"進口花至少提早 1 星期"},
+     {t:"提醒尾款",          d:D(17),  done:false},
+     {t:"進場布置",          d:D(24),  done:false, hint:"出門前先跑一次物資盤點"},
+     {t:"撤場・收尾款",       d:D(25),  done:false},
+   ]},
+  {id:"p2", kind:"course", label:"花藝課程", status:"planning", statusLabel:"洽談中",
+   name:"聖誕圈公開班", where:"店內・週六下午", date:D(41), guests:"8 位學員",
+   feeMode:"每人各自收", fee:1680,
+   quote:[
+     {t:"主花・配花", st:"yes", v:420},
+     {t:"線條花・葉材", st:"yes", v:180},
+     {t:"花器",       st:"yes", v:150},
+     {t:"包裝紙・緞帶", st:"yes", v:90},
+     {t:"提袋・講義",  st:"tbd", v:60},
+   ],
+   cost:4300, tiers:{pass:60, normal:66, ideal:70},
+   invoice:"免用統一發票", invoiceNote:"她自己開收據，這筆要列入報稅季報。",
+   tasks:[
+     {t:"設計花單",         d:D(27), done:false, hint:"早兩星期"},
+     {t:"設計筆記及列印",    d:D(34), done:false, hint:"早一星期"},
+     {t:"通知學生上堂",      d:D(39), done:false, hint:"早 2 天"},
+     {t:"買花",            d:D(39), done:false, hint:"早 2 天"},
+     {t:"通知學生地點",      d:D(40), done:false, hint:"早 1 天"},
+   ]},
+];
+const MATERIALS = [
+  {id:"m1", name:"牛皮紙 · 深咖", qty:38, unitPrice:12, size:"60 × 60 cm"},
+  {id:"m2", name:"緞帶 · 米白", qty:6, unitPrice:140, size:"25 mm × 9 m"},
+  {id:"m3", name:"花器 · 陶罐", qty:4, unitPrice:260, size:"高 18 cm"},
+];
+
+/* ═══════════════════════ state ═══════════════════════════════════════ */
+const S = {
+  tab:"home", search:"", filter:"all", cat:"all", view:"list",
+  calMonth: today.slice(0,7), calSel:null,
+  todos:[ {id:1, text:"回覆婚禮佈置報價單", done:false},
+          {id:2, text:"整理下季課程講義", done:true} ],
+  todoSeq:3,
+  modal:null,            /* null | "new" | order id */
+  ai:{state:"idle"},     /* idle | run | ok */
+  draft:null,
+  proj:"p1",             /* which 大型工作 card is expanded */
+  printSel:new Set(["a1"]),
+  shopSel:new Set(["a1","a3"]), shopState:"idle", shopList:null,
+};
+const byId = id => ORDERS.find(o => o.id === id);
+const total = o => o.price || 0;
+const received = o => o.paymentStatus === "paid" ? (o.price||0)
+                    : o.paymentStatus === "deposit" ? (o.depositAmount||0) : 0;
+
+/* ═══════════════════════ views ═══════════════════════════════════════ */
+function vHome(){
+  const fests = upcoming(4);
+  const todayO = ORDERS.filter(o => o.date === today);
+  const buy = ORDERS.filter(o => !o.flowersBought && o.status !== "completed" && o.date >= today)
+                    .sort((a,b) => a.date.localeCompare(b.date)).slice(0,4);
+  return '<div class="page">'
+  + '<div class="demo-note">資料先存在這台裝置，離線也能用；連上網再同步到雲端，換手機也看得到。</div>'
+  + '<div class="sec-t">節慶旺季提醒 <span class="ln"></span></div>'
+  + '<div class="fest-grid">' + fests.map(f =>
+      '<div class="fcell ' + (f.peak ? "peak" : "") + '">' + tulip(20)
+      + '<div class="fcn">' + f.name + '</div>'
+      + '<div class="fcd">' + (f.daysLeft === 0 ? "就是今天" : "還有 " + f.daysLeft + " 天")
+      + '</div></div>').join("") + '</div>'
+  + '<div style="height:18px"></div>'
+  + '<div class="sec-t">今日交付 <span class="ln"></span></div>'
+  + (todayO.length === 0 ? '<div class="empty-task">今天沒有要交付的訂單</div>'
+     : todayO.map(o =>
+      '<div class="task" data-open="' + o.id + '">'
+      + '<div class="ic ' + (o.deliveryType === "delivery" ? "deliver" : "pickup") + '">'
+      + ic(o.deliveryType === "delivery" ? "truck" : "pack") + '</div>'
+      + '<div class="mid"><div class="nm">' + esc(o.customerName) + '</div>'
+      + '<div class="ds">' + esc(o.items) + '</div></div>'
+      + '<div class="rt">' + (o.timeSlot || "待定") + '<br>'
+      + (o.deliveryType === "delivery" ? "外送" : "自取") + '</div></div>').join(""))
+  + '<div style="height:14px"></div>'
+  + '<div class="sec-t">待備花材 <span class="ln"></span></div>'
+  + (buy.length === 0 ? '<div class="empty-task">花材都備齊了</div>'
+     : buy.map(o =>
+      '<div class="task" data-open="' + o.id + '">'
+      + '<div class="ic buy">' + ic("flower") + '</div>'
+      + '<div class="mid"><div class="nm">' + esc(o.customerName) + ' · ' + fmtShort(o.date)
+      + '</div><div class="ds">' + esc(o.items) + '</div></div>'
+      + '<div class="rt" data-bought="' + o.id + '" style="color:var(--gold)">標記<br>已買</div>'
+      + '</div>').join(""))
+  + '<div style="height:14px"></div>'
+  + '<div class="sec-t">待辦文件・事項 <span class="ln"></span></div>'
+  + '<div class="todo-add"><input id="todoIn" placeholder="如：討論婚佈、提供報價單、更新合約…">'
+  + '<button data-act="addtodo">' + ic("plus",16) + '</button></div>'
+  + (S.todos.length === 0 ? '<div class="empty-task">目前沒有待辦事項</div>'
+     : S.todos.map(t =>
+      '<div class="todo ' + (t.done ? "done" : "") + '">'
+      + '<button class="todo-check" data-todo="' + t.id + '">' + (t.done ? "✓" : "") + '</button>'
+      + '<span class="todo-text" data-todo="' + t.id + '">' + esc(t.text) + '</span>'
+      + '<button class="todo-del" data-todorm="' + t.id + '">×</button></div>').join(""))
+  + '</div>';
+}
+
+function ocCard(o){
+  const tg = [];
+  if(o.deliveryType === "delivery")
+    tg.push('<span class="tg ' + (o.deliveryArranged ? "deliver-on" : "off")
+      + '" data-tg="' + o.id + ':deliveryArranged">'
+      + (o.deliveryArranged ? "✓ 已安排外送" : "安排外送") + '</span>');
+  if(o.taxExempt)
+    tg.push('<span class="tg ' + (o.invoiced ? "invoice-on" : "off")
+      + '" data-tg="' + o.id + ':invoiced">'
+      + (o.invoiced ? "✓ 已開發票" : "開發票") + '</span>');
+  if(o.cardMessage)
+    tg.push('<span class="tg ' + (o.cardWritten ? "card-on" : "off")
+      + '" data-tg="' + o.id + ':cardWritten">'
+      + (o.cardWritten ? "✓ 小卡" : "小卡") + '</span>');
+  tg.push('<span class="tg ' + (o.status === "completed" ? "done-on" : "off")
+    + '" data-tg="' + o.id + ':status">'
+    + (o.status === "completed" ? "✓ 完成" : "待處理") + '</span>');
+
+  const typeLabel = o.deliveryType === "delivery"
+    ? (o.deliveryFeePayer === "到付" ? "外送到付"
+       : o.deliveryFeePayer === "先付" ? "外送先付" : "外送") : "自取";
+  const pay = PAY[o.paymentStatus];
+
+  return '<div class="oc" data-open="' + o.id + '"><div class="oc-main">'
+  + '<div class="oc-h"><div><div class="oc-nm">' + esc(o.customerName) + '</div>'
+  + (o.phone ? '<div class="oc-ph">' + esc(o.phone) + '</div>' : "") + '</div>'
+  + '<div class="oc-rt"><div class="oc-time">'
+  + esc(o.timeText || o.timeSlot || "時間待定") + '</div></div></div>'
+  + '<div class="badges" style="margin-bottom:8px">'
+  + (o.category ? '<span class="bdg bdg-cat">' + o.category + '</span>' : "")
+  + '<span class="bdg bdg-type ' + (o.deliveryType === "delivery" ? "deliver" : "") + '">'
+  + typeLabel + '</span>'
+  + '<span class="bdg ' + pay.cls + '">' + pay.label
+  + (o.paymentStatus === "deposit" && o.depositAmount ? "·" + fmt(o.depositAmount) : "")
+  + '</span>'
+  + (o.occasion ? '<span class="bdg bdg-occ">' + o.occasion + '</span>' : "")
+  + (o.taxExempt ? '<span class="bdg bdg-tax">免用發票</span>' : "")
+  + '</div>'
+  + (o.items ? '<div class="oc-items">' + esc(o.items) + '</div>' : "")
+  + '<div class="oc-f"><div class="oc-price">' + fmt(total(o)) + '</div>'
+  + '<div class="toggles">' + tg.join("") + '</div></div></div>'
+  + (o.cardColors.length
+     ? '<div class="oc-colors">' + o.cardColors.map(v =>
+        '<span class="cbar" style="background:' + swatchOf(v) + '"></span>').join("") + '</div>'
+     : "") + '</div>';
+}
+
+function vOrders(){
+  const base = ORDERS.filter(o => {
+    if(S.search && !(o.customerName + " " + o.recipientName + " " + o.items)
+       .toLowerCase().includes(S.search.toLowerCase())) return false;
+    if(S.filter === "pending"   && o.status === "completed") return false;
+    if(S.filter === "completed" && o.status !== "completed") return false;
+    if(S.filter === "unpaid"    && o.paymentStatus === "paid") return false;
+    if(S.cat !== "all" && o.category !== S.cat) return false;
+    return true;
+  });
+  const month = ORDERS.filter(o => o.date.startsWith(today.slice(0,7)));
+  const mT = month.reduce((s,o) => s + total(o), 0);
+  const mR = month.reduce((s,o) => s + received(o), 0);
+  const catT = {};
+  month.forEach(o => { const k = o.category || "其他"; catT[k] = (catT[k]||0) + total(o); });
+  const taxT = month.filter(o => o.taxExempt).reduce((s,o) => s + total(o), 0);
+
+  let body;
+  if(S.view === "calendar"){
+    body = vCal(base);
+  } else {
+    const g = {};
+    base.slice().sort((a,b) => (a.date||"9999").localeCompare(b.date||"9999"))
+        .forEach(o => (g[o.date] = g[o.date] || []).push(o));
+    const keys = Object.keys(g);
+    body = keys.length === 0
+      ? '<div class="empty"><div class="e-ic">' + tulip(40) + '</div>'
+        + '<p>沒有符合的訂單<br>調整篩選或點右下角 ＋ 新增</p></div>'
+      : keys.map(d => '<div class="date-h"><span>' + fmtDate(d) + '</span>'
+          + '<span class="meta">' + g[d].length + ' 筆 · '
+          + fmt(g[d].reduce((s,o) => s + total(o), 0)) + '</span></div>'
+          + g[d].map(ocCard).join("")).join("");
+  }
+
+  return '<div class="page">'
+  + '<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center">'
+  + '<div class="mlabel">營業統計</div>'
+  + '<select class="rev-month"><option>' + today.slice(0,7) + '</option></select></div>'
+  + '<div class="big">' + fmt(mT) + '</div>'
+  + '<div class="grid"><div class="cell"><div class="l">已收</div>'
+  + '<div class="v">' + fmt(mR) + '</div></div>'
+  + '<div class="cell due"><div class="l">待收</div>'
+  + '<div class="v">' + fmt(mT - mR) + '</div></div>'
+  + '<div class="cell"><div class="l">訂單</div>'
+  + '<div class="v">' + month.length + '</div></div></div></div>'
+  + '<div class="cat-break">'
+  + Object.keys(catT).sort((a,b) => catT[b]-catT[a]).map(k =>
+      '<span class="cat-pill">' + k + ' <b>' + fmt(catT[k]) + '</b></span>').join("")
+  + (taxT ? '<span class="cat-pill tax">免用發票 <b>' + fmt(taxT) + '</b></span>' : "")
+  + '</div><div style="height:16px"></div>'
+  + '<div class="searchbar">' + ic("search",16)
+  + '<input id="q" placeholder="搜尋客人、收件人、花束…" value="' + esc(S.search) + '"></div>'
+  + '<div class="vtoggle">'
+  + '<button class="' + (S.view === "list" ? "on" : "") + '" data-view="list">'
+  + ic("list",15) + ' 列表</button>'
+  + '<button class="' + (S.view === "calendar" ? "on" : "") + '" data-view="calendar">'
+  + ic("cal",15) + ' 月曆</button>'
+  + '<button data-tab="print">' + ic("print",15) + ' 列印</button></div>'
+  + '<div class="chips">'
+  + [["all","全部"],["pending","待處理"],["completed","已完成"],["unpaid","未付清"]].map(f =>
+      '<div class="chip ' + (S.filter === f[0] ? "on" : "") + '" data-filter="' + f[0] + '">'
+      + f[1] + '</div>').join("") + '</div>'
+  + '<div class="chips cat">'
+  + '<div class="chip ' + (S.cat === "all" ? "on" : "") + '" data-cat="all">全部類別</div>'
+  + CATEGORIES.map(c => '<div class="chip ' + (S.cat === c ? "on" : "") + '" data-cat="' + c
+      + '">' + c + '</div>').join("") + '</div>'
+  + body + '</div>';
+}
+
+function vCal(list){
+  const y = +S.calMonth.slice(0,4), m = +S.calMonth.slice(5,7);
+  const first = new Date(y, m-1, 1).getDay();
+  const days = new Date(y, m, 0).getDate();
+  const cnt = {};
+  list.forEach(o => { if(o.date.startsWith(S.calMonth)) cnt[o.date] = (cnt[o.date]||0) + 1; });
+  let cells = "";
+  for(let i = 0; i < first; i++) cells += '<div class="cal-cell empty"></div>';
+  for(let d = 1; d <= days; d++){
+    const key = S.calMonth + "-" + String(d).padStart(2,"0");
+    const n = cnt[key] || 0;
+    cells += '<div class="cal-cell ' + (key === today ? "today " : "")
+      + (S.calSel === key ? "sel" : "") + '" data-cal="' + key + '">'
+      + '<span class="cal-d">' + d + '</span>'
+      + (n ? '<span class="cal-cnt">' + n + '</span>' : "") + '</div>';
+  }
+  const sel = S.calSel ? list.filter(o => o.date === S.calSel) : [];
+  return '<div class="cal"><div class="cal-head">'
+  + '<button data-mon="-1">' + ic("left",16) + '</button>'
+  + '<span>' + y + ' 年 ' + m + ' 月</span>'
+  + '<button data-mon="1">' + ic("right",16) + '</button></div>'
+  + '<div class="cal-grid" style="margin-bottom:5px">'
+  + WD.map(w => '<div class="cal-dowc">' + w + '</div>').join("") + '</div>'
+  + '<div class="cal-grid">' + cells + '</div>'
+  + '<div class="cal-detail">'
+  + (S.calSel
+     ? '<div class="date-h"><span>' + fmtDate(S.calSel) + '</span>'
+       + '<span class="meta">' + sel.length + ' 筆</span></div>'
+       + (sel.length ? sel.map(ocCard).join("") : '<div class="empty-task">這天沒有訂單</div>')
+     : '<div class="empty-task">點一天看當日訂單</div>')
+  + '</div></div>';
+}
+
+function vPrint(){
+  const list = ORDERS.filter(o => o.status !== "completed");
+  return '<div class="page">'
+  + '<div class="sec-t">列印備忘 <span class="ln"></span></div>'
+  + '<div class="pt-bar"><input value="' + today + '" readonly>'
+  + '<button class="pt-print"' + (S.printSel.size ? "" : " disabled") + '>'
+  + ic("print",15) + ' 列印 ' + S.printSel.size + ' 張</button></div>'
+  + '<div class="selrow"><span>一頁 6 格，每格一張備忘</span>'
+  + '<label class="check-lbl" data-act="pall">'
+  + '<input type="checkbox"' + (S.printSel.size === list.length ? " checked" : "") + '> 全選</label></div>'
+  + list.map(o =>
+    '<label class="psel" data-print="' + o.id + '">'
+    + '<input type="checkbox"' + (S.printSel.has(o.id) ? " checked" : "") + '>'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-family:\'Noto Serif TC\',serif;font-weight:600">'
+    + esc(o.customerName) + ' <span style="font-size:.72rem;color:var(--muted);font-weight:400">'
+    + fmtShort(o.date) + ' · ' + (o.timeText || o.timeSlot || "待定") + '</span></div>'
+    + '<div style="font-size:.78rem;color:var(--muted);margin-top:3px;line-height:1.5">'
+    + esc(o.items) + '</div></div></label>').join("")
+  + '<div class="tax-hint" style="margin-top:10px">備忘只印品項、時間與備註。'
+  + '客人電話與地址不進備忘，避免掉在工作檯上。</div>'
+  + '</div>';
+}
+
+/* 大型工作. The sums here are plain arithmetic on purpose — the app does not let
+   a model near them, because a wrong total costs her money on the day. */
+function pjRevenue(p){
+  return p.kind === "course"
+    ? p.fee * (parseInt(p.guests, 10) || 0)
+    : p.quote.filter(q => q.st === "yes").reduce((s,q) => s + q.v, 0);
+}
+function pjTier(p){
+  const rev = pjRevenue(p);
+  const m = rev ? Math.round((rev - p.cost) / rev * 1000) / 10 : 0;
+  const k = m >= p.tiers.ideal ? "ideal" : m >= p.tiers.normal ? "normal"
+          : m >= p.tiers.pass ? "pass" : "below";
+  return {m:m, key:k, label:{ideal:"理想", normal:"正常", pass:"合格", below:"未達合格"}[k]};
+}
+
+function vProjects(){
+  return '<div class="page">'
+  + '<div class="sec-t">婚禮佈置・花藝課程 <span class="ln"></span></div>'
+  + '<div class="shop-note">一件大型工作要跑好幾個星期。報價、成本、毛利率和'
+  + '準備流程放在同一張卡上，點一下看細節。</div>'
+  + PROJECTS.map(p => {
+      const on = S.proj === p.id, rev = pjRevenue(p), t = pjTier(p);
+      const done = p.tasks.filter(x => x.done).length;
+      return '<div class="pj ' + (on ? "on" : "") + '" data-pj="' + p.id + '">'
+      + '<div class="pj-h"><div style="flex:1;min-width:0">'
+      + '<div class="pj-nm">' + esc(p.name) + '</div>'
+      + '<div class="pj-sub">' + fmtShort(p.date) + ' · ' + esc(p.where)
+      + ' · ' + esc(p.guests) + '</div>'
+      + '<div class="badges" style="margin-top:7px">'
+      + '<span class="bdg bdg-kind ' + (p.kind === "course" ? "course" : "") + '">'
+      + esc(p.label) + '</span>'
+      + '<span class="bdg bdg-st ' + p.status + '">' + esc(p.statusLabel) + '</span>'
+      + '<span class="bdg bdg-tax">' + esc(p.invoice) + '</span></div></div>'
+      + '<div class="pj-amt">' + fmt(rev) + '<small>報價</small></div></div>'
+      + '<div class="pj-marg"><div class="bar">'
+      + '<span class="fill ' + t.key + '" style="width:' + Math.max(0, Math.min(100, t.m)) + '%"></span>'
+      + '</div><div class="lg"><span>毛利率 <b>' + t.m + '%</b> · ' + t.label + '</span>'
+      + '<span>成本 ' + fmt(p.cost) + ' · 門檻 ' + p.tiers.pass + '/'
+      + p.tiers.normal + '/' + p.tiers.ideal + '</span></div></div>'
+      + (on ? pjBody(p, done) : "")
+      + '</div>';
+    }).join("")
+  + '<div class="tax-hint" style="margin-top:10px">加總、毛利率與流程日期都是純函式算的，'
+  + '不經過模型。算錯一筆她就白做一場。</div>'
+  + '</div>';
+}
+
+function pjBody(p, done){
+  const ST = {yes:"✓", tbd:"?", no:"✕"};
+  return '<div class="pj-body"><p class="pj-cap">'
+  + (p.kind === "course" ? "每人份材料 · " + esc(p.feeMode) + " " + fmt(p.fee) + "／人"
+     : "報價項目 · 只有「要」計入總價") + '</p>'
+  + p.quote.map(q =>
+      '<div class="qrow ' + (q.st === "no" ? "off" : "") + '">'
+      + '<span class="st ' + q.st + '">' + ST[q.st] + '</span>'
+      + '<span class="t">' + esc(q.t) + '</span>'
+      + '<span class="v">' + fmt(q.v) + '</span></div>').join("")
+  + '<p class="pj-cap" style="margin:14px 0 8px">準備流程 · ' + done + ' / '
+  + p.tasks.length + ' 已完成</p>'
+  + p.tasks.map(x =>
+      '<div class="pj-task ' + (x.done ? "done" : "") + '"><span class="dot2"></span>'
+      + '<span class="t">' + esc(x.t)
+      + (x.hint ? '<span class="hint">' + esc(x.hint) + '</span>' : "") + '</span>'
+      + '<span class="d">' + (x.d ? fmtShort(x.d) : "待") + '</span></div>').join("")
+  + '<div class="tax-hint" style="margin-top:11px">發票：' + esc(p.invoice) + '。'
+  + esc(p.invoiceNote) + '</div></div>';
+}
+
+function vShop(){
+  const list = ORDERS.filter(o => !o.flowersBought && o.status !== "completed");
+  return '<div class="page">'
+  + '<div class="sec-t">採購花單 <span class="ln"></span></div>'
+  + '<div class="shop-note">勾選要一起備料的訂單，合併成一張花單。'
+  + '同一種花會被加總，不用自己算。</div>'
+  + list.map(o =>
+    '<label class="sord" data-shop="' + o.id + '">'
+    + '<input type="checkbox"' + (S.shopSel.has(o.id) ? " checked" : "") + '>'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-size:.88rem">' + esc(o.customerName) + ' · ' + fmtShort(o.date) + '</div>'
+    + '<div style="font-size:.74rem;color:var(--muted);margin-top:2px;overflow:hidden;'
+    + 'text-overflow:ellipsis;white-space:nowrap">' + esc(o.items) + '</div></div></label>').join("")
+  + '<button class="gen" data-act="gen"' + (S.shopSel.size && S.shopState !== "run" ? "" : " disabled") + '>'
+  + (S.shopState === "run" ? '<span class="spin"></span> 整理中…'
+     : ic("spark",17) + ' 產生花單') + '</button>'
+  + (S.shopList ? shopListHtml() : "")
+  + '</div>';
+}
+
+function shopListHtml(){
+  const l = S.shopList;
+  const done = l.items.filter(i => i.checked).length;
+  return '<div class="shoplist"><div class="sl-head">'
+  + '<div class="t">今日花單</div><div class="s">' + esc(l.summary) + '</div></div>'
+  + '<div class="sl-budget"><label>預算</label><input value="4,500"></div>'
+  + l.items.map((it,i) =>
+    '<label class="sli ' + (it.checked ? "done" : "") + '" data-sli="' + i + '">'
+    + '<input type="checkbox"' + (it.checked ? " checked" : "") + '>'
+    + '<span class="nm">' + esc(it.name) + '</span>'
+    + '<span class="qt">' + esc(it.quantity) + '</span></label>').join("")
+  + '<div class="sl-foot"><span>' + done + ' / ' + l.items.length + ' 已買</span>'
+  + '<span>合併自 ' + S.shopSel.size + ' 筆訂單</span></div></div>';
+}
+
+function vLedger(){
+  const spent = EXPENSES.reduce((s,e) => s + e.amount, 0);
+  const taxed = EXPENSES.filter(e => e.taxReport).reduce((s,e) => s + e.amount, 0);
+  return '<div class="page">'
+  + '<div class="sec-t">支出登記 <span class="ln"></span></div>'
+  + '<div class="exp-form">'
+  + '<input class="fi exp-date" value="' + today + '" readonly>'
+  + '<select class="fi exp-cat"><option>花材</option><option>資材</option><option>其他</option></select>'
+  + '<select class="fi exp-pp-sel"><option>項目別</option>'
+  + ["花束","花禮","週花","捧花","佈置","課程","節日"].map(p =>
+      '<option>' + p + '</option>').join("") + '</select>'
+  + '<input class="fi exp-item" placeholder="品項">'
+  + '<input class="fi exp-amt" placeholder="金額">'
+  + '<button class="exp-add">' + ic("plus",17) + '</button></div>'
+  + '<div class="exp-opts">'
+  + '<label class="exp-ck"><input type="checkbox" checked> 需報稅</label>'
+  + '<label class="exp-ck"><input type="checkbox"> 同步入庫</label></div>'
+  + '<div style="height:16px"></div>'
+  + '<div class="sec-t">本月明細 <span class="ln"></span>'
+  + '<button class="ledger-export">' + ic("dl",13) + ' CSV</button></div>'
+  + EXPENSES.map(e =>
+    '<div class="exp-row ' + (e.taxReport ? "taxed" : "") + '">'
+    + '<span class="exp-d">' + fmtShort(e.date) + '</span>'
+    + (e.purpose ? '<span class="exp-pp">' + e.purpose + '</span>' : "")
+    + '<span class="exp-it">' + esc(e.item) + '</span>'
+    + '<span class="exp-a">' + fmt(e.amount) + '</span></div>').join("")
+  + '<div style="height:16px"></div>'
+  + '<div class="sec-t">報稅季報 <span class="ln"></span></div>'
+  + '<div class="tax-box"><div class="tax-head">'
+  + '<select class="fi tax-year" style="flex:0 0 104px"><option>' + today.slice(0,4) + '</option></select>'
+  + '<button class="ledger-export">' + ic("dl",13) + ' 匯出</button></div>'
+  + [["Q1",0,0],["Q2",0,0],["Q3", ORDERS.filter(o=>o.taxExempt).reduce((s,o)=>s+total(o),0), taxed],
+     ["Q4",0,0]].map(q =>
+    '<div class="tax-row"><span class="tax-q">' + q[0] + '</span>'
+    + '<span class="tax-fig">收入<b>' + fmt(q[1]) + '</b></span>'
+    + '<span class="tax-fig">成本<b>' + fmt(q[2]) + '</b></span></div>').join("")
+  + '<div class="tax-hint">只計入標了「免用發票」的訂單與標了「需報稅」的支出。'
+  + '其他都不進季報。</div></div>'
+  + '<div style="height:16px"></div>'
+  + '<div class="sec-t">資材庫存 <span class="ln"></span></div>'
+  + MATERIALS.map(m =>
+    '<div class="mat-row"><div class="mat-info">'
+    + '<div class="mat-ph">' + ic("box",18) + '</div>'
+    + '<div><div class="mat-nm">' + esc(m.name) + '</div>'
+    + '<div class="mat-sub"><span>' + esc(m.size) + '</span><span>單價 '
+    + fmt(m.unitPrice) + '</span></div></div></div>'
+    + '<div class="mat-stock"><small>剩</small>' + m.qty + '</div></div>').join("")
+  + '<div class="tax-hint">本月支出合計 ' + fmt(spent) + '，其中需報稅 ' + fmt(taxed) + '。</div>'
+  + '</div>';
+}
+
+/* ── modals ───────────────────────────────────────────────────────────── */
+const SAMPLE_MSG =
+  "你好 我想訂一束花 這週五下午三點前送到中山路88號5樓 送給王經理 開幕用的 "
++ "向日葵那種喜氣一點的 預算三千 小卡幫我寫開業大吉 我姓陳 0922-111-222";
+
+function vNew(){
+  const d = S.draft;
+  const ai = S.ai.state;
+  return '<div class="ovl" data-close="1"><div class="modal" data-stop="1">'
+  + '<div class="m-head"><h2>新增訂單</h2>'
+  + '<button data-close="1">' + ic("x",16) + '</button></div>'
+  + '<div class="m-body">'
+  + '<div class="aibox"><div class="lbl">' + ic("spark",14) + ' 貼上客人的訊息，自動填表</div>'
+  + '<textarea id="aiIn" placeholder="把 LINE 或 IG 的訊息整段貼進來…">'
+  + (ai === "idle" ? "" : esc(SAMPLE_MSG)) + '</textarea>'
+  + '<button class="ai-btn" data-act="ai"' + (ai === "run" ? " disabled" : "") + '>'
+  + (ai === "run" ? '<span class="spin"></span> 解析中…'
+     : ic("spark",15) + ' 解析訊息') + '</button>'
+  + (ai === "ok" ? '<div class="ai-ok">已填入 9 個欄位。金額、付款狀態與訂金不由解析決定，'
+     + '請自己確認後再儲存。</div>' : "")
+  + (ai === "idle" ? '<div style="margin-top:8px;text-align:center">'
+     + '<button class="cancel" style="padding:4px" data-act="paste">貼上範例訊息</button></div>' : "")
+  + '</div>'
+  + '<div class="divider">— 或直接填 —</div>'
+  + '<div class="frow"><div class="fg"><label class="fl">客人稱呼</label>'
+  + '<input class="fi" value="' + esc(d.customerName) + '"></div>'
+  + '<div class="fg"><label class="fl">電話</label>'
+  + '<input class="fi" value="' + esc(d.phone) + '"></div></div>'
+  + '<div class="fg"><label class="fl">交付方式</label><div class="seg">'
+  + '<button class="' + (d.deliveryType === "pickup" ? "on" : "") + '" data-dt="pickup">自取</button>'
+  + '<button class="' + (d.deliveryType === "delivery" ? "on" : "") + '" data-dt="delivery">外送</button>'
+  + '</div></div>'
+  + (d.deliveryType === "delivery"
+     ? '<div class="delivery-block"><div class="bt">' + ic("truck",13) + ' 外送資訊</div>'
+       + '<div class="fg"><label class="fl">收件人</label>'
+       + '<input class="fi" value="' + esc(d.recipientName) + '"></div>'
+       + '<div class="fg"><label class="fl">地址</label>'
+       + '<input class="fi" value="' + esc(d.address) + '"></div>'
+       + '<div class="fg"><label class="fl">外送方式</label><div class="seg small">'
+       + DELIVERY_METHODS.map(x => '<button data-set="deliveryMethod:' + x + '" class="'
+         + (d.deliveryMethod === x ? "on" : "") + '">' + x + '</button>').join("") + '</div></div>'
+       + '<div class="fg" style="margin-bottom:0"><label class="fl">運費付法</label>'
+       + '<div class="seg small">' + FEE_PAYERS.map(x =>
+         '<button data-set="deliveryFeePayer:' + x + '" class="'
+         + (d.deliveryFeePayer === x ? "on" : "") + '">' + x + '</button>').join("")
+       + '</div></div></div>'
+     : '<div class="fg"><label class="fl">自取交通（決定包裝）</label><div class="seg small">'
+       + PICKUP_TRANSPORTS.map(x => '<button data-set="pickupTransport:' + x + '" class="'
+         + (d.pickupTransport === x ? "on" : "") + '">' + x + '</button>').join("")
+       + '</div></div>')
+  + '<div class="frow"><div class="fg"><label class="fl">日期</label>'
+  + '<input class="fi" value="' + esc(d.date) + '"></div>'
+  + '<div class="fg"><label class="fl">具體時間</label>'
+  + '<input class="fi" value="' + esc(d.timeText) + '" placeholder="如 15:00 前"></div></div>'
+  + '<div class="fg"><label class="fl">時段</label><div class="seg small">'
+  + TIME_OPTS.map(t => '<button data-set="timeSlot:' + t + '" class="'
+    + (d.timeSlot === t ? "on" : "") + '">' + t + '</button>').join("") + '</div></div>'
+  + '<div class="fg"><label class="fl">類別</label><div class="seg small">'
+  + CATEGORIES.map(c => '<button data-set="category:' + c + '" class="'
+    + (d.category === c ? "on" : "") + '">' + c + '</button>').join("") + '</div></div>'
+  + '<div class="fg"><label class="fl">場合</label><div class="seg small">'
+  + OCCASIONS.map(c => '<button data-set="occasion:' + c + '" class="'
+    + (d.occasion === c ? "on" : "") + '">' + c + '</button>').join("") + '</div></div>'
+  + '<div class="fg"><label class="fl">品項</label>'
+  + '<textarea class="fi">' + esc(d.items) + '</textarea></div>'
+  + '<div class="fg"><label class="fl">作品色系（可多選）</label><div class="swatch-row">'
+  + CARD_COLORS.map(c => '<span class="cswatch' + (d.cardColors.indexOf(c.value) >= 0 ? " on" : "")
+    + '" data-sw="' + c.value + '"><span class="cdot" style="background:' + c.swatch + '"></span>'
+    + c.label + '</span>').join("") + '</div></div>'
+  + '<div class="frow"><div class="fg"><label class="fl">金額</label>'
+  + '<input class="fi" value="' + (d.price || "") + '"></div>'
+  + '<div class="fg"><label class="fl">訂金</label>'
+  + '<input class="fi" value="' + (d.depositAmount || "") + '"></div></div>'
+  + '<div class="fg"><label class="fl">付款狀態</label><div class="seg small">'
+  + ["unpaid","deposit","paid"].map(p => '<button data-set="paymentStatus:' + p + '" class="'
+    + (d.paymentStatus === p ? "on" : "") + '">' + PAY[p].label + '</button>').join("")
+  + '</div></div>'
+  + '<div class="fg"><label class="fl">小卡內容</label>'
+  + '<textarea class="fi">' + esc(d.cardMessage) + '</textarea></div>'
+  + '<div class="fg"><label class="fl">備註</label>'
+  + '<textarea class="fi">' + esc(d.notes) + '</textarea></div>'
+  + '<button class="save" data-close="1">儲存訂單</button>'
+  + '<button class="cancel" data-close="1">取消</button>'
+  + '</div></div></div>';
+}
+
+function vDetail(o){
+  const rows = [
+    ["客人", o.customerName + (o.phone ? "　" + o.phone : "")],
+    ["日期", fmtDate(o.date) + "　" + (o.timeText || o.timeSlot || "時間待定")],
+    ["交付", o.deliveryType === "delivery"
+      ? "外送 · " + (o.deliveryMethod || "未定") + " · 運費 " + fmt(o.deliveryFee)
+        + (o.deliveryFeePayer ? " " + o.deliveryFeePayer : "")
+      : "自取 · " + (o.pickupTransport || "未填")],
+    o.recipientName ? ["收件", o.recipientName + (o.address ? "　" + o.address : "")] : null,
+    ["類別", (o.category || "—") + "　" + (o.occasion || "")],
+    ["品項", o.items],
+    o.colorScheme ? ["色系", o.colorScheme] : null,
+    o.bouquetUse.length ? ["捧花用途", o.bouquetUse.join("、")] : null,
+    o.holderHeight ? ["身高／禮服", o.holderHeight + "　" + o.dressStyle] : null,
+    ["金額", fmt(total(o)) + (o.paymentStatus === "deposit"
+      ? "　訂金 " + fmt(o.depositAmount) : "")],
+    ["付款", PAY[o.paymentStatus].label + (o.paymentMethod ? "　" + o.paymentMethod : "")
+      + (o.taxExempt ? "　免用發票" : "")],
+    o.notes ? ["備註", o.notes] : null,
+  ].filter(Boolean);
+
+  return '<div class="ovl" data-close="1"><div class="modal" data-stop="1">'
+  + '<div class="m-head"><h2>' + esc(o.customerName) + '</h2>'
+  + '<button data-close="1">' + ic("x",16) + '</button></div>'
+  + '<div class="m-body">'
+  + (o.cardColors.length ? '<div class="swatch-row" style="margin-bottom:12px">'
+     + o.cardColors.map(v => '<span class="cswatch on"><span class="cdot" style="background:'
+       + swatchOf(v) + '"></span>' + ((CMAP.get(v) || {}).label || v) + '</span>').join("")
+     + '</div>' : "")
+  + rows.map(r => '<div class="dt-row"><span class="k">' + r[0] + '</span>'
+    + '<span class="v">' + esc(r[1]) + '</span></div>').join("")
+  + (o.cardMessage ? '<div class="dt-card">「' + esc(o.cardMessage) + '」</div>' : "")
+  + '<button class="save" data-close="1">編輯這筆</button>'
+  + '<button class="cancel" data-close="1">關閉</button>'
+  + '</div></div></div>';
+}
+
+/* ═══════════════════════ render ══════════════════════════════════════ */
+/* Print left the bottom nav when 大型工作 joined it — five tabs is the ceiling on
+   a phone. Print is now reached from the 訂單 page. */
+const TABS = [["home","工作台","home"],["orders","訂單","orders"],
+              ["projects","大型工作","projects"],
+              ["shop","採購","shop"],["ledger","帳務","ledger"]];
+const TITLE = {home:"工作台", orders:"訂單", projects:"大型工作", print:"列印備忘",
+               shop:"採購", ledger:"帳務"};
+
+function render(){
+  const page = S.tab === "home" ? vHome() : S.tab === "orders" ? vOrders()
+             : S.tab === "projects" ? vProjects()
+             : S.tab === "print" ? vPrint() : S.tab === "shop" ? vShop() : vLedger();
+  const modal = S.modal === "new" ? vNew()
+              : S.modal ? vDetail(byId(S.modal)) : "";
+  document.getElementById("device").innerHTML =
+    '<div class="wrap" id="wrap">'
+    + '<div class="top"><h1>' + tulip(22,"#CBDCC4") + ' ' + TITLE[S.tab] + '</h1>'
+    + '<div class="sub">ORDER BOOK</div></div>'
+    + page + '</div>'
+    + '<button class="fab" data-act="new">' + ic("plus",24) + '</button>'
+    + '<div class="nav">' + TABS.map(t =>
+        '<button class="'
+        + (S.tab === t[0] || (S.tab === "print" && t[0] === "orders") ? "on" : "")
+        + '" data-tab="' + t[0] + '">'
+        + ic(t[2],20) + '<span>' + t[1] + '</span><span class="dot"></span></button>').join("")
+    + '</div>' + modal;
+}
+
+/* ═══════════════════════ events ═════════════════════════════════════ */
+const dev = document.getElementById("device");
+
+dev.addEventListener("click", e => {
+  const t = e.target.closest("[data-tab],[data-act],[data-open],[data-tg],[data-todo],[data-pj],"
+    + "[data-todorm],[data-filter],[data-cat],[data-view],[data-cal],[data-mon],[data-print],"
+    + "[data-shop],[data-sli],[data-bought],[data-close],[data-dt],[data-set],[data-sw],[data-stop]");
+  if(!t) return;
+
+  if(t.dataset.close !== undefined && t.dataset.stop === undefined){
+    S.modal = null; S.ai = {state:"idle"}; return render();
+  }
+  if(t.dataset.tab){ S.tab = t.dataset.tab; return render(); }
+  if(t.dataset.pj){ S.proj = S.proj === t.dataset.pj ? null : t.dataset.pj; return render(); }
+  if(t.dataset.open){ S.modal = t.dataset.open; return render(); }
+  if(t.dataset.bought){
+    e.stopPropagation();
+    const o = byId(t.dataset.bought); if(o) o.flowersBought = true; return render();
+  }
+  if(t.dataset.tg){
+    e.stopPropagation();
+    const parts = t.dataset.tg.split(":"), o = byId(parts[0]);
+    if(!o) return;
+    if(parts[1] === "status") o.status = o.status === "completed" ? "pending" : "completed";
+    else o[parts[1]] = !o[parts[1]];
+    return render();
+  }
+  if(t.dataset.todo){
+    const td = S.todos.find(x => x.id === +t.dataset.todo);
+    if(td) td.done = !td.done; return render();
+  }
+  if(t.dataset.todorm){
+    S.todos = S.todos.filter(x => x.id !== +t.dataset.todorm); return render();
+  }
+  if(t.dataset.filter){ S.filter = t.dataset.filter; return render(); }
+  if(t.dataset.cat){ S.cat = t.dataset.cat; return render(); }
+  if(t.dataset.view){ S.view = t.dataset.view; return render(); }
+  if(t.dataset.cal){ S.calSel = S.calSel === t.dataset.cal ? null : t.dataset.cal; return render(); }
+  if(t.dataset.mon){
+    let y = +S.calMonth.slice(0,4), m = +S.calMonth.slice(5,7) + (+t.dataset.mon);
+    if(m < 1){ m = 12; y--; } if(m > 12){ m = 1; y++; }
+    S.calMonth = y + "-" + String(m).padStart(2,"0"); S.calSel = null; return render();
+  }
+  if(t.dataset.print){
+    S.printSel.has(t.dataset.print) ? S.printSel.delete(t.dataset.print)
+                                    : S.printSel.add(t.dataset.print);
+    return render();
+  }
+  if(t.dataset.shop){
+    S.shopSel.has(t.dataset.shop) ? S.shopSel.delete(t.dataset.shop)
+                                  : S.shopSel.add(t.dataset.shop);
+    S.shopList = null; S.shopState = "idle"; return render();
+  }
+  if(t.dataset.sli){
+    const it = S.shopList.items[+t.dataset.sli]; it.checked = !it.checked; return render();
+  }
+  if(t.dataset.dt){ S.draft.deliveryType = t.dataset.dt; return render(); }
+  if(t.dataset.set){
+    const p = t.dataset.set.split(":"); S.draft[p[0]] = p[1]; return render();
+  }
+  if(t.dataset.sw){
+    const i = S.draft.cardColors.indexOf(t.dataset.sw);
+    i >= 0 ? S.draft.cardColors.splice(i,1) : S.draft.cardColors.push(t.dataset.sw);
+    return render();
+  }
+
+  switch(t.dataset.act){
+    case "new":
+      S.draft = mk({date: today}); S.ai = {state:"idle"}; S.modal = "new"; return render();
+    case "paste":
+      S.ai = {state:"ready"}; return render();
+    case "ai": {
+      S.ai = {state:"run"}; render();
+      setTimeout(() => {
+        S.draft = mk({
+          customerName:"陳先生", phone:"0922-111-222", deliveryType:"delivery",
+          date:D(5), timeText:"下午 3 點前", timeSlot:"下午", recipientName:"王經理",
+          address:"中山路 88 號 5 樓", category:"花禮", occasion:"開幕",
+          items:"開幕祝賀花籃，向日葵＋劍蘭，喜氣明亮", colorScheme:"喜氣明亮",
+          deliveryMethod:"lala送", cardMessage:"開業大吉，鴻圖大展", price:3000,
+        });
+        S.ai = {state:"ok"}; render();
+      }, 950);
+      return;
+    }
+    case "addtodo": {
+      const el = document.getElementById("todoIn");
+      const v = el ? el.value.trim() : "";
+      if(v){ S.todos.push({id:S.todoSeq++, text:v, done:false}); }
+      return render();
+    }
+    case "pall": {
+      const list = ORDERS.filter(o => o.status !== "completed");
+      S.printSel = S.printSel.size === list.length ? new Set() : new Set(list.map(o => o.id));
+      return render();
+    }
+    case "gen": {
+      S.shopState = "run"; render();
+      setTimeout(() => {
+        S.shopState = "done";
+        S.shopList = { summary: "合併 " + S.shopSel.size + " 筆訂單 · 共 6 種花材",
+          items: [
+            {name:"玫瑰 · 粉", quantity:"2 紮", checked:false},
+            {name:"玫瑰 · 正紅", quantity:"5 紮", checked:false},
+            {name:"桔梗 · 白", quantity:"1 紮", checked:false},
+            {name:"尤加利葉", quantity:"1 把", checked:false},
+            {name:"滿天星", quantity:"半紮", checked:false},
+            {name:"牛皮紙 · 深咖", quantity:"6 張", checked:false},
+          ]};
+        render();
+      }, 1000);
+      return;
+    }
+  }
+});
+
+dev.addEventListener("input", e => {
+  if(e.target.id === "q"){ S.search = e.target.value; const p = e.target.selectionStart;
+    render(); const n = document.getElementById("q");
+    if(n){ n.focus(); n.setSelectionRange(p,p); } }
+});
+dev.addEventListener("keydown", e => {
+  if(e.key === "Enter" && e.target.id === "todoIn"){
+    const v = e.target.value.trim();
+    if(v){ S.todos.push({id:S.todoSeq++, text:v, done:false}); render(); }
+  }
+});
+
+const hash = (location.hash || "").replace("#","");
+if(TABS.some(t => t[0] === hash)) S.tab = hash;
+
+render();
+</script>
+</body>
+</html>
