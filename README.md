@@ -97,7 +97,7 @@
       book is how she manages her orders.
 
   plb-algo-trader                                                                   Python
-      a framework for batch backtesting, portfolio evaluation, and live trading.
+      a framework for batch backtesting, portfolio optimization, and live trading.
 </pre>
 
 <div align="center">
